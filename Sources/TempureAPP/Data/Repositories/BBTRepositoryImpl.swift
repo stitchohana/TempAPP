@@ -272,6 +272,9 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         }
 
         let temperature = sqlite3_column_double(statement, 1)
+        guard temperature.isFinite else {
+            return nil
+        }
         let updatedAt = sqlite3_column_int64(statement, 2)
         return BBTRecord(date: date, temperatureCelsius: temperature, updatedAt: updatedAt)
     }

@@ -320,7 +320,8 @@ public struct BBTLineChartView: View {
         let rawIndices = [0, monthDates.count / 2, monthDates.count - 1]
         let uniqueIndices = Array(Set(rawIndices)).sorted()
 
-        return uniqueIndices.map { index in
+        return uniqueIndices.compactMap { index in
+            guard monthDates.indices.contains(index) else { return nil }
             let x = frame.minX + CGFloat(index) * (frame.width / denominator)
             let day = dateService.calendar.component(.day, from: monthDates[index])
             return DateAxisTick(id: index, label: "\(day)日", x: x)
@@ -332,7 +333,7 @@ public struct BBTLineChartView: View {
     }
 
     private func yRange(points: [Double?], include extra: Double?) -> ClosedRange<Double> {
-        let values = points.compactMap { $0 } + (extra.map { [$0] } ?? [])
+        let values = points.compactMap { $0 }.filter(\.isFinite) + (extra.map { [$0] } ?? []).filter(\.isFinite)
         var minValue = values.min() ?? defaultMin
         var maxValue = values.max() ?? defaultMax
 
@@ -359,7 +360,10 @@ public struct BBTLineChartView: View {
     }
 
     private func toY(value: Double, range: ClosedRange<Double>, frame: CGRect) -> CGFloat {
-        let ratio = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
+        guard value.isFinite else { return frame.midY }
+        let denominator = range.upperBound - range.lowerBound
+        guard denominator > 0, denominator.isFinite else { return frame.midY }
+        let ratio = (value - range.lowerBound) / denominator
         return frame.maxY - CGFloat(ratio) * frame.height
     }
 

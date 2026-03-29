@@ -38,11 +38,23 @@ public final class HomeViewModel: ObservableObject {
     }
 
     public var recordsByDateKey: [String: BBTRecord] {
-        Dictionary(uniqueKeysWithValues: state.monthlyRecords.map { (dateService.storageKey(for: $0.date), $0) })
+        state.monthlyRecords.reduce(into: [:]) { result, record in
+            let key = dateService.storageKey(for: record.date)
+            if let existing = result[key], existing.updatedAt > record.updatedAt {
+                return
+            }
+            result[key] = record
+        }
     }
 
     public var tagsByDateKey: [String: DailyTag] {
-        Dictionary(uniqueKeysWithValues: state.monthlyTags.map { (dateService.storageKey(for: $0.date), $0) })
+        state.monthlyTags.reduce(into: [:]) { result, tag in
+            let key = dateService.storageKey(for: tag.date)
+            if let existing = result[key], existing.updatedAt > tag.updatedAt {
+                return
+            }
+            result[key] = tag
+        }
     }
 
     public var inputRangeForCurrentUnit: ClosedRange<Double> {

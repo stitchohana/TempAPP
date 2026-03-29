@@ -19,7 +19,14 @@ public struct AnalyzeCycleUseCase: Sendable {
     }
 
     public func execute(records: [BBTRecord]) -> CycleAnalysis {
-        let sorted = records.sorted { $0.date < $1.date }
+        let sorted = records.sorted { lhs, rhs in
+            let lhsDay = dateService.dayStart(for: lhs.date)
+            let rhsDay = dateService.dayStart(for: rhs.date)
+            if lhsDay == rhsDay {
+                return lhs.updatedAt < rhs.updatedAt
+            }
+            return lhsDay < rhsDay
+        }
         guard
             let start = sorted.first?.date,
             let end = sorted.last?.date
@@ -28,7 +35,9 @@ public struct AnalyzeCycleUseCase: Sendable {
         }
 
         let dateSeries = buildDateSeries(start: dateService.dayStart(for: start), end: dateService.dayStart(for: end))
-        let valueMap = Dictionary(uniqueKeysWithValues: sorted.map { (dateService.dayStart(for: $0.date), $0.temperatureCelsius) })
+        let valueMap = sorted.reduce(into: [Date: Double]()) { result, record in
+            result[dateService.dayStart(for: record.date)] = record.temperatureCelsius
+        }
         let values = dateSeries.map { valueMap[$0] }
 
         guard values.count >= 9 else {
