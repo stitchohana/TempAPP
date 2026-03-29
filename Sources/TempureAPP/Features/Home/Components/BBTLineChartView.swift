@@ -49,10 +49,25 @@ public struct BBTLineChartView: View {
             let segments = lineSegments(from: points)
             let marker = markerRecord
             let tagMarkers = tagMarkers(from: points)
+            let axisRange = rangeForAxis(points: points)
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(colorScheme == .dark ? TempureColors.warmSandDark.opacity(0.82) : Color.white.opacity(0.6))
+
+                ForEach(temperatureTicks(range: axisRange, frame: frame)) { tick in
+                    Text(String(format: "%.1f", tick.value))
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .foregroundStyle(TempureColors.subtleDot.opacity(0.92))
+                        .position(x: frame.minX - 20, y: tick.y)
+                }
+
+                ForEach(dateTicks(frame: frame)) { tick in
+                    Text(tick.label)
+                        .font(.system(size: 10, weight: .medium, design: .rounded))
+                        .foregroundStyle(TempureColors.subtleDot.opacity(0.92))
+                        .position(x: tick.x, y: frame.maxY + 13)
+                }
 
                 if let y = coverlineY(in: frame, points: points) {
                     Path { path in
@@ -201,6 +216,11 @@ public struct BBTLineChartView: View {
         return recordsByDateKey[selectedDateKey]
     }
 
+    private func rangeForAxis(points: [PlottedPoint]) -> ClosedRange<Double> {
+        let coverDisplay = coverlineCelsius.map { UnitConversionService.toDisplayValue(celsius: $0, unit: unit) }
+        return yRange(points: points.map(\.value), include: coverDisplay)
+    }
+
     private func tagText(for date: Date) -> String? {
         let key = dateService.storageKey(for: date)
         guard let tag = tagsByDateKey[key], tag.hasAnyTag else {
@@ -222,7 +242,13 @@ public struct BBTLineChartView: View {
     }
 
     private func chartFrame(in size: CGSize) -> CGRect {
-        CGRect(x: 18, y: 20, width: size.width - 36, height: size.height - 34)
+        let leftInset: CGFloat = 48
+        let rightInset: CGFloat = 14
+        let topInset: CGFloat = 16
+        let bottomInset: CGFloat = 28
+        let width = max(size.width - leftInset - rightInset, 40)
+        let height = max(size.height - topInset - bottomInset, 40)
+        return CGRect(x: leftInset, y: topInset, width: width, height: height)
     }
 
     private func segmentPath(from start: CGPoint, to end: CGPoint) -> Path {
@@ -278,6 +304,31 @@ public struct BBTLineChartView: View {
             }
             return TagMarker(key: point.key, point: point.point, tag: tag)
         }
+    }
+
+    private func temperatureTicks(range: ClosedRange<Double>, frame: CGRect) -> [TemperatureAxisTick] {
+        [
+            TemperatureAxisTick(id: 0, value: roundToTenth(range.upperBound), y: frame.minY),
+            TemperatureAxisTick(id: 1, value: roundToTenth((range.upperBound + range.lowerBound) / 2), y: frame.midY),
+            TemperatureAxisTick(id: 2, value: roundToTenth(range.lowerBound), y: frame.maxY),
+        ]
+    }
+
+    private func dateTicks(frame: CGRect) -> [DateAxisTick] {
+        guard !monthDates.isEmpty else { return [] }
+        let denominator = CGFloat(max(monthDates.count - 1, 1))
+        let rawIndices = [0, monthDates.count / 2, monthDates.count - 1]
+        let uniqueIndices = Array(Set(rawIndices)).sorted()
+
+        return uniqueIndices.map { index in
+            let x = frame.minX + CGFloat(index) * (frame.width / denominator)
+            let day = dateService.calendar.component(.day, from: monthDates[index])
+            return DateAxisTick(id: index, label: "\(day)日", x: x)
+        }
+    }
+
+    private func roundToTenth(_ value: Double) -> Double {
+        (value * 10).rounded() / 10
     }
 
     private func yRange(points: [Double?], include extra: Double?) -> ClosedRange<Double> {
@@ -388,5 +439,17 @@ private struct TagMarker: Identifiable {
     let tag: DailyTag
 
     var id: String { key }
+}
+
+private struct TemperatureAxisTick: Identifiable {
+    let id: Int
+    let value: Double
+    let y: CGFloat
+}
+
+private struct DateAxisTick: Identifiable {
+    let id: Int
+    let label: String
+    let x: CGFloat
 }
 #endif
