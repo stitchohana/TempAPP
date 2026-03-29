@@ -1,0 +1,677 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01587A1D83C3ECA5F016C037 /* GetMonthlyRecordsUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAC4CE214F1AE3392876DC7 /* GetMonthlyRecordsUseCase.swift */; };
+		06703D49A89768CB04C4A509 /* HapticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE5E63C1C35B7779001E58EE /* HapticsService.swift */; };
+		0AC09241E91EC36DB16FDC05 /* AnalyzeCycleUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B31237438F9320DB6931A731 /* AnalyzeCycleUseCaseTests.swift */; };
+		0D13803DCF970F6DB0F2338D /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148664F899A9060D507CB891 /* HomeView.swift */; };
+		120E8E76A939044DE8618D7B /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5440ABFA0DBCFE5D7B175FC /* Typography.swift */; };
+		1908098AFBB594D6B79B5B6D /* MatrixCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 746689283C2B971E40C6AE3C /* MatrixCalendarView.swift */; };
+		202FC29E8F163956C678E1D2 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728EEC696ECC07C1119F7A5B /* Colors.swift */; };
+		23861C21F20428C600C84902 /* BBTLineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A001A994A130C9E71EA8629 /* BBTLineChartView.swift */; };
+		2C8366BEFBC5D7CFA8E3B17B /* SQLiteDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E457EEABB95268E5ECBD4CE /* SQLiteDatabase.swift */; };
+		2CDAEEDA14D441705487DB2F /* TempInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F27909331B9B558E188E9122 /* TempInputSheet.swift */; };
+		4B4061BA76DBEF8750F28BC2 /* SaveTemperatureUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06A8E322DB1BB368899CBC5E /* SaveTemperatureUseCase.swift */; };
+		52CC579ECE074AE930FA2AC0 /* Migration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7413A1E7A3CA681CB9D7E0 /* Migration.swift */; };
+		53CBDDB8369BF49555B77E62 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4C8444EA3C0659D0695D7B9 /* Assets.xcassets */; };
+		54A836D6A26A32F667C52226 /* TempureApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C39ED8E66B67A6EBC2773252 /* TempureApp.swift */; };
+		5A578C04293CE3D72D1C7E58 /* HomeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5115A4CEB5E24EC372CC8B56 /* HomeState.swift */; };
+		5D3C9451DD0CBE0D07251F23 /* BBTRecordRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53EE20F69386B5E1A652CF8 /* BBTRecordRow.swift */; };
+		5F96B0B5BF8F88E296BE24B8 /* BBTRepositoryImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF87C02272DC19D415CC32D /* BBTRepositoryImpl.swift */; };
+		73FF94BF1F07289901638477 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 038ED554A662223253ED1C78 /* libsqlite3.tbd */; };
+		7768C1B3A353085B99C4C56F /* Motion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A92DD66FF4122CCF78482B2 /* Motion.swift */; };
+		813350AC85AA53934F07E168 /* AnalyzeCycleUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86C0F63F41B99EBEA177B03 /* AnalyzeCycleUseCase.swift */; };
+		822E01F1C6EAFF613693C156 /* BBTRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78F956DF565B8790C833D5F /* BBTRecord.swift */; };
+		87DA3E439A22385905F89F0B /* UnitConversionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D8E90BEB4714F5300665C /* UnitConversionService.swift */; };
+		97B324BC2E0E699E9FF074F0 /* BBTRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3820F350CFAC69C126DF7176 /* BBTRepository.swift */; };
+		A4F576A704EB384CCF062BD9 /* TemperatureUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9186F107CFEC6800D70BFC /* TemperatureUnit.swift */; };
+		AD4E8886926C7B6F917C93DB /* CycleAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE4C536C980F08F17B6F94F /* CycleAnalysis.swift */; };
+		B24FBA1E974C2D59B92292A2 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6DE419525AC8C7C1285193 /* AppContainer.swift */; };
+		C31A15A9BF4B3210A730FF2E /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30353DCCCCEF5F24138340B5 /* HomeViewModel.swift */; };
+		DC3F067B4BCD571B01DE3DEE /* DateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C34DEBFA1CD2AB357C939F9E /* DateService.swift */; };
+		EDA2260EDD9BD9900225967A /* TinySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA453B5CFDCF721FC4D48F5 /* TinySettingsView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		43A85A943137F5B7AF18CB16 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A557E532F40BB1623B8C077E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 839903B041CF2CC4D1CF20C3;
+			remoteInfo = TempureAPP;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		038ED554A662223253ED1C78 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		06A8E322DB1BB368899CBC5E /* SaveTemperatureUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveTemperatureUseCase.swift; sourceTree = "<group>"; };
+		0A001A994A130C9E71EA8629 /* BBTLineChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTLineChartView.swift; sourceTree = "<group>"; };
+		148664F899A9060D507CB891 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		1E457EEABB95268E5ECBD4CE /* SQLiteDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteDatabase.swift; sourceTree = "<group>"; };
+		30353DCCCCEF5F24138340B5 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		3820F350CFAC69C126DF7176 /* BBTRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTRepository.swift; sourceTree = "<group>"; };
+		3F6DE419525AC8C7C1285193 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
+		5115A4CEB5E24EC372CC8B56 /* HomeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeState.swift; sourceTree = "<group>"; };
+		5CF87C02272DC19D415CC32D /* BBTRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTRepositoryImpl.swift; sourceTree = "<group>"; };
+		6DAC4CE214F1AE3392876DC7 /* GetMonthlyRecordsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMonthlyRecordsUseCase.swift; sourceTree = "<group>"; };
+		728EEC696ECC07C1119F7A5B /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		746689283C2B971E40C6AE3C /* MatrixCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixCalendarView.swift; sourceTree = "<group>"; };
+		7A92DD66FF4122CCF78482B2 /* Motion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Motion.swift; sourceTree = "<group>"; };
+		7DE4C536C980F08F17B6F94F /* CycleAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleAnalysis.swift; sourceTree = "<group>"; };
+		80703282389128BD34F519BB /* TempureAPP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TempureAPP.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8A9D8E90BEB4714F5300665C /* UnitConversionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitConversionService.swift; sourceTree = "<group>"; };
+		9A7413A1E7A3CA681CB9D7E0 /* Migration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migration.swift; sourceTree = "<group>"; };
+		A5440ABFA0DBCFE5D7B175FC /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
+		A973A8C4159A56852AB360B8 /* TempureAPPTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TempureAPPTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B31237438F9320DB6931A731 /* AnalyzeCycleUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyzeCycleUseCaseTests.swift; sourceTree = "<group>"; };
+		B53EE20F69386B5E1A652CF8 /* BBTRecordRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTRecordRow.swift; sourceTree = "<group>"; };
+		B78F956DF565B8790C833D5F /* BBTRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTRecord.swift; sourceTree = "<group>"; };
+		C34DEBFA1CD2AB357C939F9E /* DateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateService.swift; sourceTree = "<group>"; };
+		C39ED8E66B67A6EBC2773252 /* TempureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempureApp.swift; sourceTree = "<group>"; };
+		CD9186F107CFEC6800D70BFC /* TemperatureUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureUnit.swift; sourceTree = "<group>"; };
+		DE5E63C1C35B7779001E58EE /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
+		E4C8444EA3C0659D0695D7B9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		ECA453B5CFDCF721FC4D48F5 /* TinySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TinySettingsView.swift; sourceTree = "<group>"; };
+		F27909331B9B558E188E9122 /* TempInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempInputSheet.swift; sourceTree = "<group>"; };
+		F86C0F63F41B99EBEA177B03 /* AnalyzeCycleUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyzeCycleUseCase.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		848CFD07905343FED6AE8639 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				73FF94BF1F07289901638477 /* libsqlite3.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1903708C7071505B313D37FE /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E4C8444EA3C0659D0695D7B9 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		3CD41A1EA56E4466FC765403 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				728EEC696ECC07C1119F7A5B /* Colors.swift */,
+				7A92DD66FF4122CCF78482B2 /* Motion.swift */,
+				A5440ABFA0DBCFE5D7B175FC /* Typography.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		47CBBAD965FF49F6A934DE97 /* UseCases */ = {
+			isa = PBXGroup;
+			children = (
+				F86C0F63F41B99EBEA177B03 /* AnalyzeCycleUseCase.swift */,
+				6DAC4CE214F1AE3392876DC7 /* GetMonthlyRecordsUseCase.swift */,
+				06A8E322DB1BB368899CBC5E /* SaveTemperatureUseCase.swift */,
+			);
+			path = UseCases;
+			sourceTree = "<group>";
+		};
+		5CCD761CCFE8464EC9239C12 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				FCC6525B4C76281A16731216 /* DTO */,
+				B097276D9756C6663074804A /* Repositories */,
+				E573C8BA4F68FCB641E2EDD4 /* Storage */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		625874E3D705471A39765864 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				8FBBBB00DF64C3B682FE6536 /* Home */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		637E51674E56DAB60FAD8892 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				C34DEBFA1CD2AB357C939F9E /* DateService.swift */,
+				DE5E63C1C35B7779001E58EE /* HapticsService.swift */,
+				8A9D8E90BEB4714F5300665C /* UnitConversionService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		722D5F54C0579924EFD32991 /* TempureAPP */ = {
+			isa = PBXGroup;
+			children = (
+				BB129E3D0E9DC81237A31DC8 /* App */,
+				5CCD761CCFE8464EC9239C12 /* Data */,
+				3CD41A1EA56E4466FC765403 /* DesignSystem */,
+				B93A3D44A21A4E7EAE34D4ED /* Domain */,
+				625874E3D705471A39765864 /* Features */,
+				1903708C7071505B313D37FE /* Resources */,
+				637E51674E56DAB60FAD8892 /* Services */,
+			);
+			name = TempureAPP;
+			path = Sources/TempureAPP;
+			sourceTree = "<group>";
+		};
+		81857ACC706631816748F2B7 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B78F956DF565B8790C833D5F /* BBTRecord.swift */,
+				7DE4C536C980F08F17B6F94F /* CycleAnalysis.swift */,
+				CD9186F107CFEC6800D70BFC /* TemperatureUnit.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		8491E4D3B36F5513C7E57EA8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				038ED554A662223253ED1C78 /* libsqlite3.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8FBBBB00DF64C3B682FE6536 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				5115A4CEB5E24EC372CC8B56 /* HomeState.swift */,
+				148664F899A9060D507CB891 /* HomeView.swift */,
+				30353DCCCCEF5F24138340B5 /* HomeViewModel.swift */,
+				DE48CB5502DDCC54D2458482 /* Components */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		93E8CFEE0BACBAF9CCEC2274 = {
+			isa = PBXGroup;
+			children = (
+				722D5F54C0579924EFD32991 /* TempureAPP */,
+				EA5137055FBBA09B0656CE5A /* TempureAPPTests */,
+				8491E4D3B36F5513C7E57EA8 /* Frameworks */,
+				9B80AD6E9B214EC7A21358DC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9B80AD6E9B214EC7A21358DC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				80703282389128BD34F519BB /* TempureAPP.app */,
+				A973A8C4159A56852AB360B8 /* TempureAPPTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B097276D9756C6663074804A /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				5CF87C02272DC19D415CC32D /* BBTRepositoryImpl.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		B93A3D44A21A4E7EAE34D4ED /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				81857ACC706631816748F2B7 /* Models */,
+				F17ABFCC9AAD652479C26225 /* Repositories */,
+				47CBBAD965FF49F6A934DE97 /* UseCases */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		BB129E3D0E9DC81237A31DC8 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				3F6DE419525AC8C7C1285193 /* AppContainer.swift */,
+				C39ED8E66B67A6EBC2773252 /* TempureApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DE48CB5502DDCC54D2458482 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				0A001A994A130C9E71EA8629 /* BBTLineChartView.swift */,
+				746689283C2B971E40C6AE3C /* MatrixCalendarView.swift */,
+				F27909331B9B558E188E9122 /* TempInputSheet.swift */,
+				ECA453B5CFDCF721FC4D48F5 /* TinySettingsView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		E573C8BA4F68FCB641E2EDD4 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				9A7413A1E7A3CA681CB9D7E0 /* Migration.swift */,
+				1E457EEABB95268E5ECBD4CE /* SQLiteDatabase.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		EA5137055FBBA09B0656CE5A /* TempureAPPTests */ = {
+			isa = PBXGroup;
+			children = (
+				B31237438F9320DB6931A731 /* AnalyzeCycleUseCaseTests.swift */,
+			);
+			name = TempureAPPTests;
+			path = Tests/TempureAPPTests;
+			sourceTree = "<group>";
+		};
+		F17ABFCC9AAD652479C26225 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				3820F350CFAC69C126DF7176 /* BBTRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		FCC6525B4C76281A16731216 /* DTO */ = {
+			isa = PBXGroup;
+			children = (
+				B53EE20F69386B5E1A652CF8 /* BBTRecordRow.swift */,
+			);
+			path = DTO;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5267CD9C557610326B4573D3 /* TempureAPPTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F8092EAAA5C5FA0F986EA30D /* Build configuration list for PBXNativeTarget "TempureAPPTests" */;
+			buildPhases = (
+				4C51145AEF90441BCA46A5BF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B923CF8CEB899BD484F6403B /* PBXTargetDependency */,
+			);
+			name = TempureAPPTests;
+			packageProductDependencies = (
+			);
+			productName = TempureAPPTests;
+			productReference = A973A8C4159A56852AB360B8 /* TempureAPPTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		839903B041CF2CC4D1CF20C3 /* TempureAPP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEC23D72A763EDE8B84197F0 /* Build configuration list for PBXNativeTarget "TempureAPP" */;
+			buildPhases = (
+				846A22B79D71A6BF2AA8F7EF /* Sources */,
+				CA7D4A1F046F5BAB4E9BE70C /* Resources */,
+				848CFD07905343FED6AE8639 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TempureAPP;
+			packageProductDependencies = (
+			);
+			productName = TempureAPP;
+			productReference = 80703282389128BD34F519BB /* TempureAPP.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A557E532F40BB1623B8C077E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = AAD8D789F08EF72FBAA11179 /* Build configuration list for PBXProject "TempureAPP" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 93E8CFEE0BACBAF9CCEC2274;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 9B80AD6E9B214EC7A21358DC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				839903B041CF2CC4D1CF20C3 /* TempureAPP */,
+				5267CD9C557610326B4573D3 /* TempureAPPTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CA7D4A1F046F5BAB4E9BE70C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53CBDDB8369BF49555B77E62 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4C51145AEF90441BCA46A5BF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0AC09241E91EC36DB16FDC05 /* AnalyzeCycleUseCaseTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		846A22B79D71A6BF2AA8F7EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				813350AC85AA53934F07E168 /* AnalyzeCycleUseCase.swift in Sources */,
+				B24FBA1E974C2D59B92292A2 /* AppContainer.swift in Sources */,
+				23861C21F20428C600C84902 /* BBTLineChartView.swift in Sources */,
+				822E01F1C6EAFF613693C156 /* BBTRecord.swift in Sources */,
+				5D3C9451DD0CBE0D07251F23 /* BBTRecordRow.swift in Sources */,
+				97B324BC2E0E699E9FF074F0 /* BBTRepository.swift in Sources */,
+				5F96B0B5BF8F88E296BE24B8 /* BBTRepositoryImpl.swift in Sources */,
+				202FC29E8F163956C678E1D2 /* Colors.swift in Sources */,
+				AD4E8886926C7B6F917C93DB /* CycleAnalysis.swift in Sources */,
+				DC3F067B4BCD571B01DE3DEE /* DateService.swift in Sources */,
+				01587A1D83C3ECA5F016C037 /* GetMonthlyRecordsUseCase.swift in Sources */,
+				06703D49A89768CB04C4A509 /* HapticsService.swift in Sources */,
+				5A578C04293CE3D72D1C7E58 /* HomeState.swift in Sources */,
+				0D13803DCF970F6DB0F2338D /* HomeView.swift in Sources */,
+				C31A15A9BF4B3210A730FF2E /* HomeViewModel.swift in Sources */,
+				1908098AFBB594D6B79B5B6D /* MatrixCalendarView.swift in Sources */,
+				52CC579ECE074AE930FA2AC0 /* Migration.swift in Sources */,
+				7768C1B3A353085B99C4C56F /* Motion.swift in Sources */,
+				2C8366BEFBC5D7CFA8E3B17B /* SQLiteDatabase.swift in Sources */,
+				4B4061BA76DBEF8750F28BC2 /* SaveTemperatureUseCase.swift in Sources */,
+				2CDAEEDA14D441705487DB2F /* TempInputSheet.swift in Sources */,
+				A4F576A704EB384CCF062BD9 /* TemperatureUnit.swift in Sources */,
+				54A836D6A26A32F667C52226 /* TempureApp.swift in Sources */,
+				EDA2260EDD9BD9900225967A /* TinySettingsView.swift in Sources */,
+				120E8E76A939044DE8618D7B /* Typography.swift in Sources */,
+				87DA3E439A22385905F89F0B /* UnitConversionService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B923CF8CEB899BD484F6403B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 839903B041CF2CC4D1CF20C3 /* TempureAPP */;
+			targetProxy = 43A85A943137F5B7AF18CB16 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		19DF1EC0BF6C4FA3FE5E89E3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7G4DH83XA3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tempure.app;
+				PRODUCT_NAME = TempureAPP;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		2311721B3C6C8474D1560069 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		5605CCD0EC6FA95926953D95 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tempure.app.tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TempureAPP.app/TempureAPP";
+			};
+			name = Release;
+		};
+		6634A924F86EB9611780B6CB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7G4DH83XA3;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tempure.app;
+				PRODUCT_NAME = TempureAPP;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		9EE714A9A51B7F8AE0112034 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C24B5FA23145D5568E3B372C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
+				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tempure.app.tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TempureAPP.app/TempureAPP";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AAD8D789F08EF72FBAA11179 /* Build configuration list for PBXProject "TempureAPP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9EE714A9A51B7F8AE0112034 /* Debug */,
+				2311721B3C6C8474D1560069 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DEC23D72A763EDE8B84197F0 /* Build configuration list for PBXNativeTarget "TempureAPP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				19DF1EC0BF6C4FA3FE5E89E3 /* Debug */,
+				6634A924F86EB9611780B6CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F8092EAAA5C5FA0F986EA30D /* Build configuration list for PBXNativeTarget "TempureAPPTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C24B5FA23145D5568E3B372C /* Debug */,
+				5605CCD0EC6FA95926953D95 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A557E532F40BB1623B8C077E /* Project object */;
+}
