@@ -16,6 +16,9 @@ let package = Package(
     targets: [
         .target(
             name: "TempureAPP",
+            resources: [
+                .process("Resources"),
+            ],
             linkerSettings: [
                 .linkedLibrary("sqlite3"),
             ]

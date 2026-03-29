@@ -127,7 +127,7 @@ public struct BBTLineChartView: View {
         formatter.dateFormat = "M/d"
 
         let value = UnitConversionService.toDisplayValue(celsius: record.temperatureCelsius, unit: unit)
-        return Text("\(formatter.string(from: record.date))  \(String(format: "%.2f", value))\(unit.symbol)")
+        return Text("\(formatter.string(from: record.date))  \(String(format: "%.1f", value))\(unit.symbol)")
             .font(TempureTypography.caption)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)

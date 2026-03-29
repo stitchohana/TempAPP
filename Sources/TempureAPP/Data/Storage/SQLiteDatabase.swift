@@ -12,10 +12,7 @@ public final class SQLiteDatabase: @unchecked Sendable {
     private let dbPath: String
 
     public init(filename: String = "tempure.sqlite3") throws {
-        let baseURL = try Self.databaseDirectoryURL()
-        try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
-
-        let dbURL = baseURL.appendingPathComponent(filename)
+        let dbURL = try Self.databaseURL(filename: filename)
         dbPath = dbURL.path
 
         if sqlite3_open(dbPath, &db) != SQLITE_OK {
@@ -28,6 +25,12 @@ public final class SQLiteDatabase: @unchecked Sendable {
 
     deinit {
         sqlite3_close(db)
+    }
+
+    static func databaseURL(filename: String) throws -> URL {
+        let baseURL = try databaseDirectoryURL()
+        try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
+        return baseURL.appendingPathComponent(filename)
     }
 
     private static func databaseDirectoryURL() throws -> URL {

@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 public final class HomeViewModel: ObservableObject {
     @Published public private(set) var state: HomeState
-    @Published public var inputText: String = ""
+    @Published public var inputValue: Double = 36.6
     @Published public var hoverRecord: BBTRecord?
     @Published public var errorMessage: String?
 
@@ -15,6 +15,9 @@ public final class HomeViewModel: ObservableObject {
     private let saveTemperatureUseCase: SaveTemperatureUseCase
     private let getMonthlyRecordsUseCase: GetMonthlyRecordsUseCase
     private let analyzeCycleUseCase: AnalyzeCycleUseCase
+    private let inputRangeCelsius: ClosedRange<Double> = 35.0...40.0
+    private let inputDefaultCelsius: Double = 36.6
+    private var hasAlignedMonthOnLaunch = false
 
     public init(container: AppContainer) {
         let today = container.dateService.dayStart(for: Date())
@@ -35,7 +38,14 @@ public final class HomeViewModel: ObservableObject {
         Dictionary(uniqueKeysWithValues: state.monthlyRecords.map { (dateService.storageKey(for: $0.date), $0) })
     }
 
+    public var inputRangeForCurrentUnit: ClosedRange<Double> {
+        let lower = UnitConversionService.toDisplayValue(celsius: inputRangeCelsius.lowerBound, unit: state.unit)
+        let upper = UnitConversionService.toDisplayValue(celsius: inputRangeCelsius.upperBound, unit: state.unit)
+        return roundToTenth(lower)...roundToTenth(upper)
+    }
+
     public func onAppear() {
+        alignDisplayMonthToLatestRecordOnFirstLaunch()
         reloadData()
     }
 
@@ -68,9 +78,11 @@ public final class HomeViewModel: ObservableObject {
     public func presentInput() {
         let key = dateService.storageKey(for: state.selectedDate)
         if let record = recordsByDateKey[key] {
-            inputText = String(format: "%.2f", UnitConversionService.toDisplayValue(celsius: record.temperatureCelsius, unit: state.unit))
+            let display = UnitConversionService.toDisplayValue(celsius: record.temperatureCelsius, unit: state.unit)
+            inputValue = roundToTenth(display)
         } else {
-            inputText = ""
+            let defaultValue = UnitConversionService.toDisplayValue(celsius: inputDefaultCelsius, unit: state.unit)
+            inputValue = roundToTenth(defaultValue)
         }
         state.isInputSheetPresented = true
         haptics.light()
@@ -81,12 +93,8 @@ public final class HomeViewModel: ObservableObject {
     }
 
     public func saveInput() {
-        guard let value = Double(inputText) else {
-            errorMessage = "请输入有效温度（示例: 36.54）"
-            return
-        }
-
         do {
+            let value = clampToInputRange(roundToTenth(inputValue))
             try saveTemperatureUseCase.execute(date: state.selectedDate, value: value, unit: state.unit)
             haptics.success()
             state.isInputSheetPresented = false
@@ -98,7 +106,13 @@ public final class HomeViewModel: ObservableObject {
     }
 
     public func updateUnit(_ unit: TemperatureUnit) {
+        let previousUnit = state.unit
+        let currentCelsius = UnitConversionService.toStoredCelsius(value: inputValue, from: previousUnit)
         state.unit = unit
+        if state.isInputSheetPresented {
+            let displayValue = UnitConversionService.toDisplayValue(celsius: currentCelsius, unit: unit)
+            inputValue = clampToInputRange(roundToTenth(displayValue))
+        }
         repository.updatePreferredUnit(unit)
         haptics.selection()
     }
@@ -116,7 +130,16 @@ public final class HomeViewModel: ObservableObject {
     }
 
     public func formatDisplay(_ value: Double) -> String {
-        String(format: "%.2f", value)
+        String(format: "%.1f", value)
+    }
+
+    private func roundToTenth(_ value: Double) -> Double {
+        (value * 10).rounded() / 10
+    }
+
+    private func clampToInputRange(_ value: Double) -> Double {
+        let bounds = inputRangeForCurrentUnit
+        return min(max(value, bounds.lowerBound), bounds.upperBound)
     }
 
     private func reloadData() {
@@ -130,6 +153,26 @@ public final class HomeViewModel: ObservableObject {
             errorMessage = nil
         } catch {
             errorMessage = "读取数据失败，请稍后重试。"
+        }
+    }
+
+    private func alignDisplayMonthToLatestRecordOnFirstLaunch() {
+        guard !hasAlignedMonthOnLaunch else { return }
+        hasAlignedMonthOnLaunch = true
+
+        do {
+            let records = try repository.fetchAllRecords()
+            guard let latestRecord = records.last else { return }
+
+            let currentMonthRange = dateService.monthRange(containing: state.displayMonth)
+            let hasRecordInCurrentMonth = records.contains { currentMonthRange.contains($0.date) }
+            guard !hasRecordInCurrentMonth else { return }
+
+            state.displayMonth = latestRecord.date
+            state.selectedDate = latestRecord.date
+            hoverRecord = latestRecord
+        } catch {
+            // Keep default month when startup lookup fails.
         }
     }
 }

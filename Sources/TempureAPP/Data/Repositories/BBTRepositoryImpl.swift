@@ -1,6 +1,8 @@
 import Foundation
 import SQLite3
 
+private let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
+
 public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
     private let db: SQLiteDatabase
     private let dateService: DateService
@@ -35,7 +37,7 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         defer { db.finalize(statement) }
 
         let dayKey = dateService.storageKey(for: date)
-        sqlite3_bind_text(statement, 1, NSString(string: dayKey).utf8String, -1, nil)
+        sqlite3_bind_text(statement, 1, (dayKey as NSString).utf8String, -1, sqliteTransient)
         sqlite3_bind_double(statement, 2, temperatureCelsius)
         sqlite3_bind_int64(statement, 3, Int64(Date().timeIntervalSince1970))
 
@@ -59,7 +61,7 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         defer { db.finalize(statement) }
 
         let dayKey = dateService.storageKey(for: date)
-        sqlite3_bind_text(statement, 1, NSString(string: dayKey).utf8String, -1, nil)
+        sqlite3_bind_text(statement, 1, (dayKey as NSString).utf8String, -1, sqliteTransient)
 
         if sqlite3_step(statement) == SQLITE_ROW {
             return decodeRecord(from: statement)
@@ -85,8 +87,8 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         let statement = try db.prepare(sql: sql)
         defer { db.finalize(statement) }
 
-        sqlite3_bind_text(statement, 1, NSString(string: startKey).utf8String, -1, nil)
-        sqlite3_bind_text(statement, 2, NSString(string: endKey).utf8String, -1, nil)
+        sqlite3_bind_text(statement, 1, (startKey as NSString).utf8String, -1, sqliteTransient)
+        sqlite3_bind_text(statement, 2, (endKey as NSString).utf8String, -1, sqliteTransient)
 
         var records: [BBTRecord] = []
         while sqlite3_step(statement) == SQLITE_ROW {

@@ -81,8 +81,9 @@ public struct HomeView: View {
             )
         ) {
             TempInputSheet(
-                inputText: $viewModel.inputText,
+                inputValue: $viewModel.inputValue,
                 unit: viewModel.state.unit,
+                range: viewModel.inputRangeForCurrentUnit,
                 onSave: viewModel.saveInput,
                 onDismiss: viewModel.dismissInput
             )
