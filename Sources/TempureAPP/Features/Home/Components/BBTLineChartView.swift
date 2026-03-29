@@ -4,6 +4,7 @@ import SwiftUI
 public struct BBTLineChartView: View {
     public var monthDates: [Date]
     public var recordsByDateKey: [String: BBTRecord]
+    public var tagsByDateKey: [String: DailyTag]
     public var selectedDate: Date
     public var hoverRecord: BBTRecord?
     public var coverlineCelsius: Double?
@@ -18,6 +19,7 @@ public struct BBTLineChartView: View {
     public init(
         monthDates: [Date],
         recordsByDateKey: [String: BBTRecord],
+        tagsByDateKey: [String: DailyTag],
         selectedDate: Date,
         hoverRecord: BBTRecord?,
         coverlineCelsius: Double?,
@@ -29,6 +31,7 @@ public struct BBTLineChartView: View {
     ) {
         self.monthDates = monthDates
         self.recordsByDateKey = recordsByDateKey
+        self.tagsByDateKey = tagsByDateKey
         self.selectedDate = selectedDate
         self.hoverRecord = hoverRecord
         self.coverlineCelsius = coverlineCelsius
@@ -45,6 +48,7 @@ public struct BBTLineChartView: View {
             let points = plottedPoints(in: frame)
             let segments = lineSegments(from: points)
             let marker = markerRecord
+            let tagMarkers = tagMarkers(from: points)
 
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: 22, style: .continuous)
@@ -85,6 +89,11 @@ public struct BBTLineChartView: View {
                         .position(point.point)
                 }
 
+                ForEach(tagMarkers) { marker in
+                    tagSymbolStack(for: marker.tag)
+                        .position(marker.point)
+                }
+
                 if isPregnancySignal, let anchor = points.last?.point {
                     Path { path in
                         path.move(to: CGPoint(x: max(frame.minX, anchor.x - 52), y: anchor.y - 10))
@@ -118,6 +127,41 @@ public struct BBTLineChartView: View {
             )
         }
         .animation(.easeInOut(duration: TempureMotion.medium), value: recordsByDateKey.count)
+    }
+
+    private var intercourseMarker: some View {
+        Image(systemName: "heart.fill")
+            .font(.system(size: 10, weight: .bold))
+            .foregroundStyle(TempureColors.dustyRose)
+            .shadow(color: TempureColors.dustyRose.opacity(colorScheme == .dark ? 0.8 : 0.35), radius: 2)
+    }
+
+    private var menstruationMarker: some View {
+        Image(systemName: "diamond.fill")
+            .font(.system(size: 9, weight: .bold))
+            .foregroundStyle(Color(red: 0.86, green: 0.23, blue: 0.26))
+            .shadow(color: Color(red: 0.86, green: 0.23, blue: 0.26).opacity(colorScheme == .dark ? 0.8 : 0.35), radius: 2)
+    }
+
+    @ViewBuilder
+    private func tagSymbolStack(for tag: DailyTag) -> some View {
+        let symbolCount = (tag.hasIntercourse ? 1 : 0) + (tag.hasMenstruation ? 1 : 0)
+        if symbolCount <= 1 {
+            if tag.hasIntercourse {
+                intercourseMarker
+            } else if tag.hasMenstruation {
+                menstruationMarker
+            }
+        } else {
+            HStack(spacing: 2) {
+                if tag.hasIntercourse {
+                    intercourseMarker
+                }
+                if tag.hasMenstruation {
+                    menstruationMarker
+                }
+            }
+        }
     }
 
     private func markerBubble(for record: BBTRecord) -> some View {
@@ -196,6 +240,15 @@ public struct BBTLineChartView: View {
                 record: record,
                 point: CGPoint(x: x, y: y)
             )
+        }
+    }
+
+    private func tagMarkers(from points: [PlottedPoint]) -> [TagMarker] {
+        points.compactMap { point in
+            guard let tag = tagsByDateKey[point.key], tag.hasAnyTag else {
+                return nil
+            }
+            return TagMarker(key: point.key, point: point.point, tag: tag)
         }
     }
 
@@ -299,5 +352,13 @@ private struct LineSegment {
     let start: PlottedPoint
     let end: PlottedPoint
     let isDashed: Bool
+}
+
+private struct TagMarker: Identifiable {
+    let key: String
+    let point: CGPoint
+    let tag: DailyTag
+
+    var id: String { key }
 }
 #endif

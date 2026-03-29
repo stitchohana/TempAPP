@@ -6,6 +6,9 @@ import SwiftUI
 public final class HomeViewModel: ObservableObject {
     @Published public private(set) var state: HomeState
     @Published public var inputValue: Double = 36.6
+    @Published public var tagHasIntercourse: Bool = false
+    @Published public var tagHasMenstruation: Bool = false
+    @Published public var tagMenstrualFlow: MenstrualFlow? = nil
     @Published public var hoverRecord: BBTRecord?
     @Published public var errorMessage: String?
 
@@ -36,6 +39,10 @@ public final class HomeViewModel: ObservableObject {
 
     public var recordsByDateKey: [String: BBTRecord] {
         Dictionary(uniqueKeysWithValues: state.monthlyRecords.map { (dateService.storageKey(for: $0.date), $0) })
+    }
+
+    public var tagsByDateKey: [String: DailyTag] {
+        Dictionary(uniqueKeysWithValues: state.monthlyTags.map { (dateService.storageKey(for: $0.date), $0) })
     }
 
     public var inputRangeForCurrentUnit: ClosedRange<Double> {
@@ -105,6 +112,42 @@ public final class HomeViewModel: ObservableObject {
         }
     }
 
+    public func presentTagInput() {
+        let key = dateService.storageKey(for: state.selectedDate)
+        if let existing = tagsByDateKey[key] {
+            tagHasIntercourse = existing.hasIntercourse
+            tagHasMenstruation = existing.hasMenstruation
+            tagMenstrualFlow = existing.menstrualFlow
+        } else {
+            tagHasIntercourse = false
+            tagHasMenstruation = false
+            tagMenstrualFlow = nil
+        }
+        state.isTagSheetPresented = true
+        haptics.light()
+    }
+
+    public func dismissTagInput() {
+        state.isTagSheetPresented = false
+    }
+
+    public func saveTagInput() {
+        do {
+            let flow = tagHasMenstruation ? tagMenstrualFlow : nil
+            try repository.saveTag(
+                on: state.selectedDate,
+                hasIntercourse: tagHasIntercourse,
+                hasMenstruation: tagHasMenstruation,
+                menstrualFlow: flow
+            )
+            haptics.success()
+            state.isTagSheetPresented = false
+            reloadData()
+        } catch {
+            errorMessage = "标签保存失败，请重试。"
+        }
+    }
+
     public func updateUnit(_ unit: TemperatureUnit) {
         let previousUnit = state.unit
         let currentCelsius = UnitConversionService.toStoredCelsius(value: inputValue, from: previousUnit)
@@ -145,6 +188,7 @@ public final class HomeViewModel: ObservableObject {
     private func reloadData() {
         do {
             state.monthlyRecords = try getMonthlyRecordsUseCase.execute(containing: state.displayMonth)
+            state.monthlyTags = try repository.fetchMonthlyTags(containing: state.displayMonth)
             let allRecords = try repository.fetchAllRecords()
             let analysis = analyzeCycleUseCase.execute(records: allRecords)
             state.coverline = analysis.coverline
@@ -162,15 +206,18 @@ public final class HomeViewModel: ObservableObject {
 
         do {
             let records = try repository.fetchAllRecords()
-            guard let latestRecord = records.last else { return }
+            let tags = try repository.fetchAllTags()
+            let latestHistoryDate = max(records.last?.date ?? .distantPast, tags.last?.date ?? .distantPast)
+            guard latestHistoryDate != .distantPast else { return }
 
             let currentMonthRange = dateService.monthRange(containing: state.displayMonth)
-            let hasRecordInCurrentMonth = records.contains { currentMonthRange.contains($0.date) }
-            guard !hasRecordInCurrentMonth else { return }
+            let hasRecordOrTagInCurrentMonth = records.contains { currentMonthRange.contains($0.date) }
+                || tags.contains { currentMonthRange.contains($0.date) }
+            guard !hasRecordOrTagInCurrentMonth else { return }
 
-            state.displayMonth = latestRecord.date
-            state.selectedDate = latestRecord.date
-            hoverRecord = latestRecord
+            state.displayMonth = latestHistoryDate
+            state.selectedDate = latestHistoryDate
+            hoverRecord = records.last { dateService.dayStart(for: $0.date) == dateService.dayStart(for: latestHistoryDate) }
         } catch {
             // Keep default month when startup lookup fails.
         }

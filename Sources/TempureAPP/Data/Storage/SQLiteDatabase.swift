@@ -43,6 +43,8 @@ public final class SQLiteDatabase: @unchecked Sendable {
     private func migrate() throws {
         try execute(sql: Migration.createBBTRecordsTable)
         try execute(sql: Migration.createUpdatedAtIndex)
+        try execute(sql: Migration.createDailyTagsTable)
+        try execute(sql: Migration.createDailyTagsUpdatedAtIndex)
     }
 
     func execute(sql: String) throws {

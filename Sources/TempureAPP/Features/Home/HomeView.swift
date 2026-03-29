@@ -37,6 +37,7 @@ public struct HomeView: View {
                 BBTLineChartView(
                     monthDates: DateService.shared.daysInMonth(containing: viewModel.state.displayMonth),
                     recordsByDateKey: viewModel.recordsByDateKey,
+                    tagsByDateKey: viewModel.tagsByDateKey,
                     selectedDate: viewModel.state.selectedDate,
                     hoverRecord: viewModel.hoverRecord,
                     coverlineCelsius: viewModel.state.coverline,
@@ -60,18 +61,33 @@ public struct HomeView: View {
             .padding(.horizontal, 14)
             .padding(.top, 10)
 
-            Button(action: viewModel.presentInput) {
-                Image(systemName: "plus")
-                    .font(.system(size: 21, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 60, height: 60)
-                    .background(
-                        Circle()
-                            .fill(TempureColors.dustyRose)
-                            .shadow(color: TempureColors.dustyRose.opacity(colorScheme == .dark ? 0.85 : 0.4), radius: 9)
-                    )
+            HStack(spacing: 12) {
+                Button(action: viewModel.presentTagInput) {
+                    Image(systemName: "tag")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 46, height: 46)
+                        .background(
+                            Circle()
+                                .fill(TempureColors.sageGreen)
+                                .shadow(color: TempureColors.sageGreen.opacity(colorScheme == .dark ? 0.8 : 0.35), radius: 7)
+                        )
+                }
+                .buttonStyle(.plain)
+
+                Button(action: viewModel.presentInput) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 21, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 60, height: 60)
+                        .background(
+                            Circle()
+                                .fill(TempureColors.dustyRose)
+                                .shadow(color: TempureColors.dustyRose.opacity(colorScheme == .dark ? 0.85 : 0.4), radius: 9)
+                        )
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
             .padding(.bottom, 20)
         }
         .sheet(
@@ -86,6 +102,20 @@ public struct HomeView: View {
                 range: viewModel.inputRangeForCurrentUnit,
                 onSave: viewModel.saveInput,
                 onDismiss: viewModel.dismissInput
+            )
+        }
+        .sheet(
+            isPresented: Binding(
+                get: { viewModel.state.isTagSheetPresented },
+                set: { if !$0 { viewModel.dismissTagInput() } }
+            )
+        ) {
+            TagInputSheet(
+                hasIntercourse: $viewModel.tagHasIntercourse,
+                hasMenstruation: $viewModel.tagHasMenstruation,
+                menstrualFlow: $viewModel.tagMenstrualFlow,
+                onSave: viewModel.saveTagInput,
+                onDismiss: viewModel.dismissTagInput
             )
         }
         .alert(
