@@ -171,8 +171,16 @@ public struct BBTLineChartView: View {
         formatter.dateFormat = "M/d"
 
         let value = UnitConversionService.toDisplayValue(celsius: record.temperatureCelsius, unit: unit)
-        return Text("\(formatter.string(from: record.date))  \(String(format: "%.1f", value))\(unit.symbol)")
-            .font(TempureTypography.caption)
+        let tagText = tagText(for: record.date)
+        return VStack(alignment: .leading, spacing: 2) {
+            Text("\(formatter.string(from: record.date))  \(String(format: "%.1f", value))\(unit.symbol)")
+                .font(TempureTypography.caption)
+            if let tagText {
+                Text(tagText)
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(TempureColors.subtleDot)
+            }
+        }
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(.ultraThinMaterial, in: Capsule())
@@ -191,6 +199,26 @@ public struct BBTLineChartView: View {
             return hoverRecord
         }
         return recordsByDateKey[selectedDateKey]
+    }
+
+    private func tagText(for date: Date) -> String? {
+        let key = dateService.storageKey(for: date)
+        guard let tag = tagsByDateKey[key], tag.hasAnyTag else {
+            return nil
+        }
+
+        var items: [String] = []
+        if tag.hasIntercourse {
+            items.append("同房")
+        }
+        if tag.hasMenstruation {
+            if let flow = tag.menstrualFlow {
+                items.append("月经(\(flow.displayText))")
+            } else {
+                items.append("月经")
+            }
+        }
+        return items.isEmpty ? nil : items.joined(separator: " · ")
     }
 
     private func chartFrame(in size: CGSize) -> CGRect {
