@@ -124,8 +124,11 @@ public struct HomeView: View {
         ) {
             TagInputSheet(
                 hasIntercourse: $viewModel.tagHasIntercourse,
+                intercourseTime: $viewModel.tagIntercourseTime,
                 hasMenstruation: $viewModel.tagHasMenstruation,
                 menstrualFlow: $viewModel.tagMenstrualFlow,
+                menstrualColor: $viewModel.tagMenstrualColor,
+                hasDysmenorrhea: $viewModel.tagHasDysmenorrhea,
                 onSave: viewModel.saveTagInput,
                 onDismiss: viewModel.dismissTagInput
             )

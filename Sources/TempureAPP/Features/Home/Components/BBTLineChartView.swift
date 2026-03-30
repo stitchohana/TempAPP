@@ -229,13 +229,27 @@ public struct BBTLineChartView: View {
 
         var items: [String] = []
         if tag.hasIntercourse {
-            items.append("同房")
+            if let time = tag.intercourseTime {
+                items.append("同房(\(time.displayText))")
+            } else {
+                items.append("同房")
+            }
         }
         if tag.hasMenstruation {
+            var details: [String] = []
             if let flow = tag.menstrualFlow {
-                items.append("月经(\(flow.displayText))")
-            } else {
+                details.append(flow.displayText)
+            }
+            if let color = tag.menstrualColor {
+                details.append(color.displayText)
+            }
+            if tag.hasDysmenorrhea {
+                details.append("痛经")
+            }
+            if details.isEmpty {
                 items.append("月经")
+            } else {
+                items.append("月经(\(details.joined(separator: "·")))")
             }
         }
         return items.isEmpty ? nil : items.joined(separator: " · ")

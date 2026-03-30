@@ -130,8 +130,11 @@ private final class StubRepository: BBTRepository, @unchecked Sendable {
     func saveTag(
         on date: Date,
         hasIntercourse: Bool,
+        intercourseTime: IntercourseTime?,
         hasMenstruation: Bool,
-        menstrualFlow: MenstrualFlow?
+        menstrualFlow: MenstrualFlow?,
+        menstrualColor: MenstrualColor?,
+        hasDysmenorrhea: Bool
     ) throws {}
 
     func fetchTag(on date: Date) throws -> DailyTag? {

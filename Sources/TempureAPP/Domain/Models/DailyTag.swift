@@ -3,8 +3,11 @@ import Foundation
 public struct DailyTag: Identifiable, Equatable, Sendable {
     public var date: Date
     public var hasIntercourse: Bool
+    public var intercourseTime: IntercourseTime?
     public var hasMenstruation: Bool
     public var menstrualFlow: MenstrualFlow?
+    public var menstrualColor: MenstrualColor?
+    public var hasDysmenorrhea: Bool
     public var updatedAt: Int64
 
     private static let idFormatter: DateFormatter = {
@@ -27,14 +30,20 @@ public struct DailyTag: Identifiable, Equatable, Sendable {
     public init(
         date: Date,
         hasIntercourse: Bool,
+        intercourseTime: IntercourseTime? = nil,
         hasMenstruation: Bool,
         menstrualFlow: MenstrualFlow?,
+        menstrualColor: MenstrualColor? = nil,
+        hasDysmenorrhea: Bool = false,
         updatedAt: Int64 = Int64(Date().timeIntervalSince1970)
     ) {
         self.date = date
         self.hasIntercourse = hasIntercourse
+        self.intercourseTime = hasIntercourse ? intercourseTime : nil
         self.hasMenstruation = hasMenstruation
         self.menstrualFlow = menstrualFlow
+        self.menstrualColor = hasMenstruation ? menstrualColor : nil
+        self.hasDysmenorrhea = hasMenstruation ? hasDysmenorrhea : false
         self.updatedAt = updatedAt
     }
 }

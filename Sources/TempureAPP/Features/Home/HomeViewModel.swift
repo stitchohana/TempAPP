@@ -7,8 +7,11 @@ public final class HomeViewModel: ObservableObject {
     @Published public private(set) var state: HomeState
     @Published public var inputValue: Double = 36.6
     @Published public var tagHasIntercourse: Bool = false
+    @Published public var tagIntercourseTime: IntercourseTime? = nil
     @Published public var tagHasMenstruation: Bool = false
     @Published public var tagMenstrualFlow: MenstrualFlow? = nil
+    @Published public var tagMenstrualColor: MenstrualColor? = nil
+    @Published public var tagHasDysmenorrhea: Bool = false
     @Published public var hoverRecord: BBTRecord?
     @Published public var errorMessage: String?
 
@@ -157,12 +160,18 @@ public final class HomeViewModel: ObservableObject {
         let key = dateService.storageKey(for: state.selectedDate)
         if let existing = tagsByDateKey[key] {
             tagHasIntercourse = existing.hasIntercourse
+            tagIntercourseTime = existing.intercourseTime
             tagHasMenstruation = existing.hasMenstruation
             tagMenstrualFlow = existing.menstrualFlow
+            tagMenstrualColor = existing.menstrualColor
+            tagHasDysmenorrhea = existing.hasDysmenorrhea
         } else {
             tagHasIntercourse = false
+            tagIntercourseTime = nil
             tagHasMenstruation = false
             tagMenstrualFlow = nil
+            tagMenstrualColor = nil
+            tagHasDysmenorrhea = false
         }
         state.isTagSheetPresented = true
         haptics.light()
@@ -178,8 +187,11 @@ public final class HomeViewModel: ObservableObject {
             try repository.saveTag(
                 on: state.selectedDate,
                 hasIntercourse: tagHasIntercourse,
+                intercourseTime: tagIntercourseTime,
                 hasMenstruation: tagHasMenstruation,
-                menstrualFlow: flow
+                menstrualFlow: flow,
+                menstrualColor: tagHasMenstruation ? tagMenstrualColor : nil,
+                hasDysmenorrhea: tagHasMenstruation ? tagHasDysmenorrhea : false
             )
             haptics.success()
             state.isTagSheetPresented = false
