@@ -57,6 +57,26 @@ public final class HomeViewModel: ObservableObject {
         }
     }
 
+    public var chartRecordsByDateKey: [String: BBTRecord] {
+        state.chartRecords.reduce(into: [:]) { result, record in
+            let key = dateService.storageKey(for: record.date)
+            if let existing = result[key], existing.updatedAt > record.updatedAt {
+                return
+            }
+            result[key] = record
+        }
+    }
+
+    public var chartTagsByDateKey: [String: DailyTag] {
+        state.chartTags.reduce(into: [:]) { result, tag in
+            let key = dateService.storageKey(for: tag.date)
+            if let existing = result[key], existing.updatedAt > tag.updatedAt {
+                return
+            }
+            result[key] = tag
+        }
+    }
+
     public var inputRangeForCurrentUnit: ClosedRange<Double> {
         let lower = UnitConversionService.toDisplayValue(celsius: inputRangeCelsius.lowerBound, unit: state.unit)
         let upper = UnitConversionService.toDisplayValue(celsius: inputRangeCelsius.upperBound, unit: state.unit)
@@ -91,7 +111,16 @@ public final class HomeViewModel: ObservableObject {
             state.selectedDate = dateService.dayStart(for: date)
         }
         haptics.selection()
-        hoverRecord = recordsByDateKey[dateService.storageKey(for: state.selectedDate)]
+        let key = dateService.storageKey(for: state.selectedDate)
+        hoverRecord = chartRecordsByDateKey[key] ?? recordsByDateKey[key]
+        rebuildChartData()
+    }
+
+    public func updateChartRange(_ range: ChartRange) {
+        guard state.chartRange != range else { return }
+        state.chartRange = range
+        haptics.selection()
+        rebuildChartData()
     }
 
     public func presentInput() {
@@ -202,13 +231,50 @@ public final class HomeViewModel: ObservableObject {
             state.monthlyRecords = try getMonthlyRecordsUseCase.execute(containing: state.displayMonth)
             state.monthlyTags = try repository.fetchMonthlyTags(containing: state.displayMonth)
             let allRecords = try repository.fetchAllRecords()
+            let allTags = try repository.fetchAllTags()
             let analysis = analyzeCycleUseCase.execute(records: allRecords)
             state.coverline = analysis.coverline
             state.highTempDays = analysis.highTemperatureDays
             state.isPregnancySignal = analysis.isPregnancySignal
+            rebuildChartData(allRecords: allRecords, allTags: allTags)
             errorMessage = nil
         } catch {
             errorMessage = "读取数据失败，请稍后重试。"
+        }
+    }
+
+    private func rebuildChartData(allRecords: [BBTRecord]? = nil, allTags: [DailyTag]? = nil) {
+        let records: [BBTRecord]
+        let tags: [DailyTag]
+
+        if let allRecords, let allTags {
+            records = allRecords
+            tags = allTags
+        } else {
+            records = (try? repository.fetchAllRecords()) ?? []
+            tags = (try? repository.fetchAllTags()) ?? []
+        }
+
+        let end = dateService.dayStart(for: state.selectedDate)
+        let offset = state.chartRange.rawValue - 1
+        let start = dateService.calendar.date(byAdding: .day, value: -offset, to: end) ?? end
+        let upper = dateService.calendar.date(byAdding: .day, value: 1, to: end) ?? end
+
+        var days: [Date] = []
+        var cursor = start
+        while cursor <= end {
+            days.append(cursor)
+            cursor = dateService.calendar.date(byAdding: .day, value: 1, to: cursor) ?? end.addingTimeInterval(1)
+        }
+        state.chartDates = days
+
+        state.chartRecords = records.filter { record in
+            let day = dateService.dayStart(for: record.date)
+            return day >= start && day < upper
+        }
+        state.chartTags = tags.filter { tag in
+            let day = dateService.dayStart(for: tag.date)
+            return day >= start && day < upper
         }
     }
 
