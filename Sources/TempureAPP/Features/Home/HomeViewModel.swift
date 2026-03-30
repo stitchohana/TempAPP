@@ -118,7 +118,6 @@ public final class HomeViewModel: ObservableObject {
         haptics.selection()
         let key = dateService.storageKey(for: state.selectedDate)
         hoverRecord = chartRecordsByDateKey[key] ?? recordsByDateKey[key]
-        rebuildChartData()
     }
 
     public func updateChartRange(_ range: ChartRange) {
@@ -273,7 +272,7 @@ public final class HomeViewModel: ObservableObject {
             tags = (try? repository.fetchAllTags()) ?? []
         }
 
-        let end = dateService.dayStart(for: state.selectedDate)
+        let end = chartEndDate(records: records, tags: tags)
         let offset = state.chartRange.rawValue - 1
         let start = dateService.calendar.date(byAdding: .day, value: -offset, to: end) ?? end
         let upper = dateService.calendar.date(byAdding: .day, value: 1, to: end) ?? end
@@ -294,6 +293,33 @@ public final class HomeViewModel: ObservableObject {
             let day = dateService.dayStart(for: tag.date)
             return day >= start && day < upper
         }
+    }
+
+    private func chartEndDate(records: [BBTRecord], tags: [DailyTag]) -> Date {
+        let today = dateService.dayStart(for: Date())
+        let offset = state.chartRange.rawValue - 1
+        let recentWindowStart = dateService.calendar.date(byAdding: .day, value: -offset, to: today) ?? today
+
+        let hasRecentRecord = records.contains { record in
+            let day = dateService.dayStart(for: record.date)
+            return day >= recentWindowStart && day <= today
+        }
+        let hasRecentTag = tags.contains { tag in
+            let day = dateService.dayStart(for: tag.date)
+            return day >= recentWindowStart && day <= today
+        }
+
+        if hasRecentRecord || hasRecentTag {
+            return today
+        }
+
+        let latestRecordDay = records.map { dateService.dayStart(for: $0.date) }.max()
+        let latestTagDay = tags.map { dateService.dayStart(for: $0.date) }.max()
+        let latestHistoryDay = max(latestRecordDay ?? .distantPast, latestTagDay ?? .distantPast)
+        if latestHistoryDay == .distantPast {
+            return today
+        }
+        return latestHistoryDay
     }
 
     private func alignDisplayMonthToLatestRecordOnFirstLaunch() {

@@ -44,9 +44,9 @@ public final class SQLiteDatabase: @unchecked Sendable {
         try execute(sql: Migration.createBBTRecordsTable)
         try execute(sql: Migration.createUpdatedAtIndex)
         try execute(sql: Migration.createDailyTagsTable)
-        try executeAllowingDuplicateColumn(sql: Migration.addIntercourseTimeColumn)
-        try executeAllowingDuplicateColumn(sql: Migration.addMenstrualColorColumn)
-        try executeAllowingDuplicateColumn(sql: Migration.addHasDysmenorrheaColumn)
+        try addColumnIfMissing(table: "daily_tags", column: "intercourse_time", sql: Migration.addIntercourseTimeColumn)
+        try addColumnIfMissing(table: "daily_tags", column: "menstrual_color", sql: Migration.addMenstrualColorColumn)
+        try addColumnIfMissing(table: "daily_tags", column: "has_dysmenorrhea", sql: Migration.addHasDysmenorrheaColumn)
         try execute(sql: Migration.createDailyTagsUpdatedAtIndex)
     }
 
@@ -73,13 +73,27 @@ public final class SQLiteDatabase: @unchecked Sendable {
         sqlite3_finalize(statement)
     }
 
-    private func executeAllowingDuplicateColumn(sql: String) throws {
-        do {
-            try execute(sql: sql)
-        } catch SQLiteError.stepFailed(let message) where message.localizedCaseInsensitiveContains("duplicate column name") {
+    private func addColumnIfMissing(table: String, column: String, sql: String) throws {
+        if try columnExists(table: table, column: column) {
             return
-        } catch {
-            throw error
         }
+        try execute(sql: sql)
+    }
+
+    private func columnExists(table: String, column: String) throws -> Bool {
+        let pragmaSQL = "PRAGMA table_info(\(table));"
+        let statement = try prepare(sql: pragmaSQL)
+        defer { finalize(statement) }
+
+        while sqlite3_step(statement) == SQLITE_ROW {
+            guard let columnNameCString = sqlite3_column_text(statement, 1) else {
+                continue
+            }
+            let columnName = String(cString: columnNameCString)
+            if columnName.caseInsensitiveCompare(column) == .orderedSame {
+                return true
+            }
+        }
+        return false
     }
 }

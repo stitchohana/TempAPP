@@ -14,11 +14,15 @@
 		120E8E76A939044DE8618D7B /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5440ABFA0DBCFE5D7B175FC /* Typography.swift */; };
 		161D27BB9EF8856AF974AED7 /* DailyTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B80B92811D708E084F3241 /* DailyTag.swift */; };
 		1908098AFBB594D6B79B5B6D /* MatrixCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 746689283C2B971E40C6AE3C /* MatrixCalendarView.swift */; };
+		1D1E76ECDA83103B0D0F95B3 /* HomeViewModelDedupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D55DFA6C3329B1E08DBB8958 /* HomeViewModelDedupTests.swift */; };
+		1F84A613127D9A8A55BB4BC7 /* IntercourseTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5A7752A36AFA9E47526EB8 /* IntercourseTime.swift */; };
 		202FC29E8F163956C678E1D2 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 728EEC696ECC07C1119F7A5B /* Colors.swift */; };
 		23861C21F20428C600C84902 /* BBTLineChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A001A994A130C9E71EA8629 /* BBTLineChartView.swift */; };
 		2C8366BEFBC5D7CFA8E3B17B /* SQLiteDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E457EEABB95268E5ECBD4CE /* SQLiteDatabase.swift */; };
 		2CDAEEDA14D441705487DB2F /* TempInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F27909331B9B558E188E9122 /* TempInputSheet.swift */; };
+		31F395F6A037A36854BC1C8C /* ChartRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76E5B6FAA4DEE06396078600 /* ChartRange.swift */; };
 		4B4061BA76DBEF8750F28BC2 /* SaveTemperatureUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06A8E322DB1BB368899CBC5E /* SaveTemperatureUseCase.swift */; };
+		516DD38FDC08EFBB3C07F664 /* HomeViewModelRecentRangeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D74F70E80CB36F331D1FF5 /* HomeViewModelRecentRangeTests.swift */; };
 		52CC579ECE074AE930FA2AC0 /* Migration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A7413A1E7A3CA681CB9D7E0 /* Migration.swift */; };
 		53CBDDB8369BF49555B77E62 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4C8444EA3C0659D0695D7B9 /* Assets.xcassets */; };
 		54A836D6A26A32F667C52226 /* TempureApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C39ED8E66B67A6EBC2773252 /* TempureApp.swift */; };
@@ -40,6 +44,7 @@
 		EC21F5BE70386AED3EA349F0 /* TagInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9E66837BF9E2022063C45D /* TagInputSheet.swift */; };
 		EDA2260EDD9BD9900225967A /* TinySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA453B5CFDCF721FC4D48F5 /* TinySettingsView.swift */; };
 		F90FDEDA92836435693446FF /* SQLitePersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E041A51EF230E83A2C51F1 /* SQLitePersistenceTests.swift */; };
+		FB9812F92CC01682740F3E0B /* MenstrualColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C131B19A7C945FB4473DB917 /* MenstrualColor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +63,7 @@
 		0A001A994A130C9E71EA8629 /* BBTLineChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTLineChartView.swift; sourceTree = "<group>"; };
 		148664F899A9060D507CB891 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		1E457EEABB95268E5ECBD4CE /* SQLiteDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteDatabase.swift; sourceTree = "<group>"; };
+		21D74F70E80CB36F331D1FF5 /* HomeViewModelRecentRangeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModelRecentRangeTests.swift; sourceTree = "<group>"; };
 		30353DCCCCEF5F24138340B5 /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		3820F350CFAC69C126DF7176 /* BBTRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTRepository.swift; sourceTree = "<group>"; };
 		3F6DE419525AC8C7C1285193 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
@@ -68,6 +74,7 @@
 		746689283C2B971E40C6AE3C /* MatrixCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixCalendarView.swift; sourceTree = "<group>"; };
 		75B80B92811D708E084F3241 /* DailyTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyTag.swift; sourceTree = "<group>"; };
 		76E47786F5766CEBB278AAC9 /* MenstrualFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenstrualFlow.swift; sourceTree = "<group>"; };
+		76E5B6FAA4DEE06396078600 /* ChartRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartRange.swift; sourceTree = "<group>"; };
 		7A92DD66FF4122CCF78482B2 /* Motion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Motion.swift; sourceTree = "<group>"; };
 		7DE4C536C980F08F17B6F94F /* CycleAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleAnalysis.swift; sourceTree = "<group>"; };
 		80703282389128BD34F519BB /* TempureAPP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TempureAPP.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -79,9 +86,12 @@
 		B31237438F9320DB6931A731 /* AnalyzeCycleUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyzeCycleUseCaseTests.swift; sourceTree = "<group>"; };
 		B53EE20F69386B5E1A652CF8 /* BBTRecordRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTRecordRow.swift; sourceTree = "<group>"; };
 		B78F956DF565B8790C833D5F /* BBTRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTRecord.swift; sourceTree = "<group>"; };
+		BE5A7752A36AFA9E47526EB8 /* IntercourseTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntercourseTime.swift; sourceTree = "<group>"; };
+		C131B19A7C945FB4473DB917 /* MenstrualColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenstrualColor.swift; sourceTree = "<group>"; };
 		C34DEBFA1CD2AB357C939F9E /* DateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateService.swift; sourceTree = "<group>"; };
 		C39ED8E66B67A6EBC2773252 /* TempureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempureApp.swift; sourceTree = "<group>"; };
 		CD9186F107CFEC6800D70BFC /* TemperatureUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureUnit.swift; sourceTree = "<group>"; };
+		D55DFA6C3329B1E08DBB8958 /* HomeViewModelDedupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModelDedupTests.swift; sourceTree = "<group>"; };
 		DE5E63C1C35B7779001E58EE /* HapticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsService.swift; sourceTree = "<group>"; };
 		E4C8444EA3C0659D0695D7B9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ECA453B5CFDCF721FC4D48F5 /* TinySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TinySettingsView.swift; sourceTree = "<group>"; };
@@ -179,6 +189,8 @@
 				B78F956DF565B8790C833D5F /* BBTRecord.swift */,
 				7DE4C536C980F08F17B6F94F /* CycleAnalysis.swift */,
 				75B80B92811D708E084F3241 /* DailyTag.swift */,
+				BE5A7752A36AFA9E47526EB8 /* IntercourseTime.swift */,
+				C131B19A7C945FB4473DB917 /* MenstrualColor.swift */,
 				76E47786F5766CEBB278AAC9 /* MenstrualFlow.swift */,
 				CD9186F107CFEC6800D70BFC /* TemperatureUnit.swift */,
 			);
@@ -196,6 +208,7 @@
 		8FBBBB00DF64C3B682FE6536 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				76E5B6FAA4DEE06396078600 /* ChartRange.swift */,
 				5115A4CEB5E24EC372CC8B56 /* HomeState.swift */,
 				148664F899A9060D507CB891 /* HomeView.swift */,
 				30353DCCCCEF5F24138340B5 /* HomeViewModel.swift */,
@@ -275,6 +288,8 @@
 			isa = PBXGroup;
 			children = (
 				B31237438F9320DB6931A731 /* AnalyzeCycleUseCaseTests.swift */,
+				D55DFA6C3329B1E08DBB8958 /* HomeViewModelDedupTests.swift */,
+				21D74F70E80CB36F331D1FF5 /* HomeViewModelRecentRangeTests.swift */,
 				84E041A51EF230E83A2C51F1 /* SQLitePersistenceTests.swift */,
 			);
 			name = TempureAPPTests;
@@ -383,6 +398,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0AC09241E91EC36DB16FDC05 /* AnalyzeCycleUseCaseTests.swift in Sources */,
+				1D1E76ECDA83103B0D0F95B3 /* HomeViewModelDedupTests.swift in Sources */,
+				516DD38FDC08EFBB3C07F664 /* HomeViewModelRecentRangeTests.swift in Sources */,
 				F90FDEDA92836435693446FF /* SQLitePersistenceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -398,6 +415,7 @@
 				5D3C9451DD0CBE0D07251F23 /* BBTRecordRow.swift in Sources */,
 				97B324BC2E0E699E9FF074F0 /* BBTRepository.swift in Sources */,
 				5F96B0B5BF8F88E296BE24B8 /* BBTRepositoryImpl.swift in Sources */,
+				31F395F6A037A36854BC1C8C /* ChartRange.swift in Sources */,
 				202FC29E8F163956C678E1D2 /* Colors.swift in Sources */,
 				AD4E8886926C7B6F917C93DB /* CycleAnalysis.swift in Sources */,
 				161D27BB9EF8856AF974AED7 /* DailyTag.swift in Sources */,
@@ -407,7 +425,9 @@
 				5A578C04293CE3D72D1C7E58 /* HomeState.swift in Sources */,
 				0D13803DCF970F6DB0F2338D /* HomeView.swift in Sources */,
 				C31A15A9BF4B3210A730FF2E /* HomeViewModel.swift in Sources */,
+				1F84A613127D9A8A55BB4BC7 /* IntercourseTime.swift in Sources */,
 				1908098AFBB594D6B79B5B6D /* MatrixCalendarView.swift in Sources */,
+				FB9812F92CC01682740F3E0B /* MenstrualColor.swift in Sources */,
 				DD21ED9320DC605D50151489 /* MenstrualFlow.swift in Sources */,
 				52CC579ECE074AE930FA2AC0 /* Migration.swift in Sources */,
 				7768C1B3A353085B99C4C56F /* Motion.swift in Sources */,

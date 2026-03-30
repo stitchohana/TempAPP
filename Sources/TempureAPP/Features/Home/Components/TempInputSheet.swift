@@ -37,9 +37,9 @@ public struct TempInputSheet: View {
             }
 
             Text(displayValue)
-                .font(TempureTypography.monoNumber)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
+                .font(.system(size: 15, weight: .medium, design: .monospaced))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
                 .background(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .fill(Color.black.opacity(0.05))
