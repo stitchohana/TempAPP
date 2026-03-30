@@ -5,6 +5,7 @@ public struct MatrixCalendarView: View {
     public var month: Date
     public var selectedDate: Date
     public var recordedDateKeys: Set<String>
+    public var tagsByDateKey: [String: DailyTag]
     public var dateService: DateService
     public var onSelectDate: (Date) -> Void
     public var onPreviousMonth: () -> Void
@@ -16,6 +17,7 @@ public struct MatrixCalendarView: View {
         month: Date,
         selectedDate: Date,
         recordedDateKeys: Set<String>,
+        tagsByDateKey: [String: DailyTag],
         dateService: DateService,
         onSelectDate: @escaping (Date) -> Void,
         onPreviousMonth: @escaping () -> Void,
@@ -24,6 +26,7 @@ public struct MatrixCalendarView: View {
         self.month = month
         self.selectedDate = selectedDate
         self.recordedDateKeys = recordedDateKeys
+        self.tagsByDateKey = tagsByDateKey
         self.dateService = dateService
         self.onSelectDate = onSelectDate
         self.onPreviousMonth = onPreviousMonth
@@ -102,12 +105,13 @@ public struct MatrixCalendarView: View {
         let key = dateService.storageKey(for: date)
         let isSelected = dateService.storageKey(for: selectedDate) == key
         let hasRecord = recordedDateKeys.contains(key)
+        let dayTag = tagsByDateKey[key]
         let day = dateService.calendar.component(.day, from: date)
 
         return Button {
             onSelectDate(date)
         } label: {
-            VStack(spacing: 3) {
+            VStack(spacing: 2) {
                 Text("\(day)")
                     .font(TempureTypography.body)
                     .foregroundStyle(colorScheme == .dark ? TempureColors.neutralTextDark : TempureColors.neutralText)
@@ -121,9 +125,24 @@ public struct MatrixCalendarView: View {
                             .shadow(color: isSelected ? TempureColors.dustyRose.opacity(colorScheme == .dark ? 0.9 : 0.35) : .clear, radius: 7)
                     )
 
-                Circle()
-                    .fill(hasRecord ? TempureColors.subtleDot : .clear)
-                    .frame(width: 4, height: 4)
+                HStack(spacing: 2) {
+                    Circle()
+                        .fill(hasRecord ? TempureColors.subtleDot : .clear)
+                        .frame(width: 4, height: 4)
+
+                    if dayTag?.hasIntercourse == true {
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 6, weight: .bold))
+                            .foregroundStyle(TempureColors.dustyRose)
+                    }
+
+                    if dayTag?.hasMenstruation == true {
+                        Image(systemName: "diamond.fill")
+                            .font(.system(size: 6, weight: .bold))
+                            .foregroundStyle(Color(red: 0.86, green: 0.23, blue: 0.26))
+                    }
+                }
+                .frame(height: 8)
             }
             .frame(maxWidth: .infinity, minHeight: 34)
             .contentShape(Rectangle())
