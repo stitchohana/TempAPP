@@ -7,8 +7,11 @@ public final class HomeViewModel: ObservableObject {
     @Published public private(set) var state: HomeState
     @Published public var inputValue: Double = 36.6
     @Published public var tagHasIntercourse: Bool = false
+    @Published public var tagIntercourseTime: IntercourseTime? = nil
     @Published public var tagHasMenstruation: Bool = false
     @Published public var tagMenstrualFlow: MenstrualFlow? = nil
+    @Published public var tagMenstrualColor: MenstrualColor? = nil
+    @Published public var tagHasDysmenorrhea: Bool = false
     @Published public var hoverRecord: BBTRecord?
     @Published public var errorMessage: String?
 
@@ -21,6 +24,8 @@ public final class HomeViewModel: ObservableObject {
     private let inputRangeCelsius: ClosedRange<Double> = 35.0...40.0
     private let inputDefaultCelsius: Double = 36.6
     private var hasAlignedMonthOnLaunch = false
+    private let defaults = UserDefaults.standard
+    private let lastTemperatureCelsiusKey = "last_input_temperature_celsius"
 
     public init(container: AppContainer) {
         let today = container.dateService.dayStart(for: Date())
@@ -49,6 +54,26 @@ public final class HomeViewModel: ObservableObject {
 
     public var tagsByDateKey: [String: DailyTag] {
         state.monthlyTags.reduce(into: [:]) { result, tag in
+            let key = dateService.storageKey(for: tag.date)
+            if let existing = result[key], existing.updatedAt > tag.updatedAt {
+                return
+            }
+            result[key] = tag
+        }
+    }
+
+    public var chartRecordsByDateKey: [String: BBTRecord] {
+        state.chartRecords.reduce(into: [:]) { result, record in
+            let key = dateService.storageKey(for: record.date)
+            if let existing = result[key], existing.updatedAt > record.updatedAt {
+                return
+            }
+            result[key] = record
+        }
+    }
+
+    public var chartTagsByDateKey: [String: DailyTag] {
+        state.chartTags.reduce(into: [:]) { result, tag in
             let key = dateService.storageKey(for: tag.date)
             if let existing = result[key], existing.updatedAt > tag.updatedAt {
                 return
@@ -91,7 +116,16 @@ public final class HomeViewModel: ObservableObject {
             state.selectedDate = dateService.dayStart(for: date)
         }
         haptics.selection()
-        hoverRecord = recordsByDateKey[dateService.storageKey(for: state.selectedDate)]
+        let key = dateService.storageKey(for: state.selectedDate)
+        hoverRecord = chartRecordsByDateKey[key] ?? recordsByDateKey[key]
+        rebuildChartData()
+    }
+
+    public func updateChartRange(_ range: ChartRange) {
+        guard state.chartRange != range else { return }
+        state.chartRange = range
+        haptics.selection()
+        rebuildChartData()
     }
 
     public func presentInput() {
@@ -100,7 +134,9 @@ public final class HomeViewModel: ObservableObject {
             let display = UnitConversionService.toDisplayValue(celsius: record.temperatureCelsius, unit: state.unit)
             inputValue = roundToTenth(display)
         } else {
-            let defaultValue = UnitConversionService.toDisplayValue(celsius: inputDefaultCelsius, unit: state.unit)
+            let rememberedCelsius = defaults.object(forKey: lastTemperatureCelsiusKey) as? Double
+            let fallbackCelsius = rememberedCelsius ?? inputDefaultCelsius
+            let defaultValue = UnitConversionService.toDisplayValue(celsius: fallbackCelsius, unit: state.unit)
             inputValue = roundToTenth(defaultValue)
         }
         state.isInputSheetPresented = true
@@ -115,6 +151,8 @@ public final class HomeViewModel: ObservableObject {
         do {
             let value = clampToInputRange(roundToTenth(inputValue))
             try saveTemperatureUseCase.execute(date: state.selectedDate, value: value, unit: state.unit)
+            let celsius = UnitConversionService.toStoredCelsius(value: value, from: state.unit)
+            defaults.set(celsius, forKey: lastTemperatureCelsiusKey)
             haptics.success()
             state.isInputSheetPresented = false
             reloadData()
@@ -128,12 +166,18 @@ public final class HomeViewModel: ObservableObject {
         let key = dateService.storageKey(for: state.selectedDate)
         if let existing = tagsByDateKey[key] {
             tagHasIntercourse = existing.hasIntercourse
+            tagIntercourseTime = existing.intercourseTime
             tagHasMenstruation = existing.hasMenstruation
             tagMenstrualFlow = existing.menstrualFlow
+            tagMenstrualColor = existing.menstrualColor
+            tagHasDysmenorrhea = existing.hasDysmenorrhea
         } else {
             tagHasIntercourse = false
+            tagIntercourseTime = nil
             tagHasMenstruation = false
             tagMenstrualFlow = nil
+            tagMenstrualColor = nil
+            tagHasDysmenorrhea = false
         }
         state.isTagSheetPresented = true
         haptics.light()
@@ -149,8 +193,11 @@ public final class HomeViewModel: ObservableObject {
             try repository.saveTag(
                 on: state.selectedDate,
                 hasIntercourse: tagHasIntercourse,
+                intercourseTime: tagIntercourseTime,
                 hasMenstruation: tagHasMenstruation,
-                menstrualFlow: flow
+                menstrualFlow: flow,
+                menstrualColor: tagHasMenstruation ? tagMenstrualColor : nil,
+                hasDysmenorrhea: tagHasMenstruation ? tagHasDysmenorrhea : false
             )
             haptics.success()
             state.isTagSheetPresented = false
@@ -202,13 +249,50 @@ public final class HomeViewModel: ObservableObject {
             state.monthlyRecords = try getMonthlyRecordsUseCase.execute(containing: state.displayMonth)
             state.monthlyTags = try repository.fetchMonthlyTags(containing: state.displayMonth)
             let allRecords = try repository.fetchAllRecords()
+            let allTags = try repository.fetchAllTags()
             let analysis = analyzeCycleUseCase.execute(records: allRecords)
             state.coverline = analysis.coverline
             state.highTempDays = analysis.highTemperatureDays
             state.isPregnancySignal = analysis.isPregnancySignal
+            rebuildChartData(allRecords: allRecords, allTags: allTags)
             errorMessage = nil
         } catch {
             errorMessage = "读取数据失败，请稍后重试。"
+        }
+    }
+
+    private func rebuildChartData(allRecords: [BBTRecord]? = nil, allTags: [DailyTag]? = nil) {
+        let records: [BBTRecord]
+        let tags: [DailyTag]
+
+        if let allRecords, let allTags {
+            records = allRecords
+            tags = allTags
+        } else {
+            records = (try? repository.fetchAllRecords()) ?? []
+            tags = (try? repository.fetchAllTags()) ?? []
+        }
+
+        let end = dateService.dayStart(for: state.selectedDate)
+        let offset = state.chartRange.rawValue - 1
+        let start = dateService.calendar.date(byAdding: .day, value: -offset, to: end) ?? end
+        let upper = dateService.calendar.date(byAdding: .day, value: 1, to: end) ?? end
+
+        var days: [Date] = []
+        var cursor = start
+        while cursor <= end {
+            days.append(cursor)
+            cursor = dateService.calendar.date(byAdding: .day, value: 1, to: cursor) ?? end.addingTimeInterval(1)
+        }
+        state.chartDates = days
+
+        state.chartRecords = records.filter { record in
+            let day = dateService.dayStart(for: record.date)
+            return day >= start && day < upper
+        }
+        state.chartTags = tags.filter { tag in
+            let day = dateService.dayStart(for: tag.date)
+            return day >= start && day < upper
         }
     }
 

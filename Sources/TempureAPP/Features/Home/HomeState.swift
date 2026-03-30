@@ -9,6 +9,10 @@ public struct HomeState: Sendable {
     public var highTempDays: Int
     public var isPregnancySignal: Bool
     public var unit: TemperatureUnit
+    public var chartRange: ChartRange
+    public var chartDates: [Date]
+    public var chartRecords: [BBTRecord]
+    public var chartTags: [DailyTag]
     public var isInputSheetPresented: Bool
     public var isTagSheetPresented: Bool
 
@@ -21,6 +25,10 @@ public struct HomeState: Sendable {
         highTempDays: Int = 0,
         isPregnancySignal: Bool = false,
         unit: TemperatureUnit = .celsius,
+        chartRange: ChartRange = .days30,
+        chartDates: [Date] = [],
+        chartRecords: [BBTRecord] = [],
+        chartTags: [DailyTag] = [],
         isInputSheetPresented: Bool = false,
         isTagSheetPresented: Bool = false
     ) {
@@ -32,6 +40,10 @@ public struct HomeState: Sendable {
         self.highTempDays = highTempDays
         self.isPregnancySignal = isPregnancySignal
         self.unit = unit
+        self.chartRange = chartRange
+        self.chartDates = chartDates
+        self.chartRecords = chartRecords
+        self.chartTags = chartTags
         self.isInputSheetPresented = isInputSheetPresented
         self.isTagSheetPresented = isTagSheetPresented
     }

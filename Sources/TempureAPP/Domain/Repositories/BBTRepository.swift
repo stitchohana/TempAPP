@@ -5,7 +5,15 @@ public protocol BBTRepository: Sendable {
     func fetchTemperature(on date: Date) throws -> BBTRecord?
     func fetchMonthlyRecords(containing date: Date) throws -> [BBTRecord]
     func fetchAllRecords() throws -> [BBTRecord]
-    func saveTag(on date: Date, hasIntercourse: Bool, hasMenstruation: Bool, menstrualFlow: MenstrualFlow?) throws
+    func saveTag(
+        on date: Date,
+        hasIntercourse: Bool,
+        intercourseTime: IntercourseTime?,
+        hasMenstruation: Bool,
+        menstrualFlow: MenstrualFlow?,
+        menstrualColor: MenstrualColor?,
+        hasDysmenorrhea: Bool
+    ) throws
     func fetchTag(on date: Date) throws -> DailyTag?
     func fetchMonthlyTags(containing date: Date) throws -> [DailyTag]
     func fetchAllTags() throws -> [DailyTag]
