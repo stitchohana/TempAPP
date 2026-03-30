@@ -27,6 +27,7 @@ public struct HomeView: View {
                     month: viewModel.state.displayMonth,
                     selectedDate: viewModel.state.selectedDate,
                     recordedDateKeys: Set(viewModel.recordsByDateKey.keys),
+                    tagsByDateKey: viewModel.tagsByDateKey,
                     dateService: DateService.shared,
                     onSelectDate: { viewModel.selectDate($0) },
                     onPreviousMonth: { viewModel.showPreviousMonth() },
