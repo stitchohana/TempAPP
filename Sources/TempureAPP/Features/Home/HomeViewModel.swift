@@ -24,6 +24,8 @@ public final class HomeViewModel: ObservableObject {
     private let inputRangeCelsius: ClosedRange<Double> = 35.0...40.0
     private let inputDefaultCelsius: Double = 36.6
     private var hasAlignedMonthOnLaunch = false
+    private let defaults = UserDefaults.standard
+    private let lastTemperatureCelsiusKey = "last_input_temperature_celsius"
 
     public init(container: AppContainer) {
         let today = container.dateService.dayStart(for: Date())
@@ -132,7 +134,9 @@ public final class HomeViewModel: ObservableObject {
             let display = UnitConversionService.toDisplayValue(celsius: record.temperatureCelsius, unit: state.unit)
             inputValue = roundToTenth(display)
         } else {
-            let defaultValue = UnitConversionService.toDisplayValue(celsius: inputDefaultCelsius, unit: state.unit)
+            let rememberedCelsius = defaults.object(forKey: lastTemperatureCelsiusKey) as? Double
+            let fallbackCelsius = rememberedCelsius ?? inputDefaultCelsius
+            let defaultValue = UnitConversionService.toDisplayValue(celsius: fallbackCelsius, unit: state.unit)
             inputValue = roundToTenth(defaultValue)
         }
         state.isInputSheetPresented = true
@@ -147,6 +151,8 @@ public final class HomeViewModel: ObservableObject {
         do {
             let value = clampToInputRange(roundToTenth(inputValue))
             try saveTemperatureUseCase.execute(date: state.selectedDate, value: value, unit: state.unit)
+            let celsius = UnitConversionService.toStoredCelsius(value: value, from: state.unit)
+            defaults.set(celsius, forKey: lastTemperatureCelsiusKey)
             haptics.success()
             state.isInputSheetPresented = false
             reloadData()
