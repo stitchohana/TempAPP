@@ -3,8 +3,11 @@ import SwiftUI
 
 public struct TagInputSheet: View {
     @Binding public var hasIntercourse: Bool
+    @Binding public var intercourseTime: IntercourseTime?
     @Binding public var hasMenstruation: Bool
     @Binding public var menstrualFlow: MenstrualFlow?
+    @Binding public var menstrualColor: MenstrualColor?
+    @Binding public var hasDysmenorrhea: Bool
     public var onSave: () -> Void
     public var onDismiss: () -> Void
 
@@ -12,14 +15,20 @@ public struct TagInputSheet: View {
 
     public init(
         hasIntercourse: Binding<Bool>,
+        intercourseTime: Binding<IntercourseTime?>,
         hasMenstruation: Binding<Bool>,
         menstrualFlow: Binding<MenstrualFlow?>,
+        menstrualColor: Binding<MenstrualColor?>,
+        hasDysmenorrhea: Binding<Bool>,
         onSave: @escaping () -> Void,
         onDismiss: @escaping () -> Void
     ) {
         self._hasIntercourse = hasIntercourse
+        self._intercourseTime = intercourseTime
         self._hasMenstruation = hasMenstruation
         self._menstrualFlow = menstrualFlow
+        self._menstrualColor = menstrualColor
+        self._hasDysmenorrhea = hasDysmenorrhea
         self.onSave = onSave
         self.onDismiss = onDismiss
     }
@@ -40,6 +49,29 @@ public struct TagInputSheet: View {
                     .font(TempureTypography.body)
             }
             .toggleStyle(.switch)
+
+            if hasIntercourse {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("同房时间（可选）")
+                        .font(TempureTypography.caption)
+                        .foregroundStyle(TempureColors.subtleDot)
+
+                    HStack(spacing: 8) {
+                        flowChip(title: "不选", isSelected: intercourseTime == nil) {
+                            intercourseTime = nil
+                            haptics.selection()
+                        }
+
+                        ForEach(IntercourseTime.allCases, id: \.rawValue) { time in
+                            flowChip(title: time.displayText, isSelected: intercourseTime == time) {
+                                intercourseTime = time
+                                haptics.selection()
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
 
             Toggle(isOn: menstruationBinding) {
                 Text("月经")
@@ -68,6 +100,33 @@ public struct TagInputSheet: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("经血颜色（可选）")
+                        .font(TempureTypography.caption)
+                        .foregroundStyle(TempureColors.subtleDot)
+
+                    HStack(spacing: 8) {
+                        flowChip(title: "不选", isSelected: menstrualColor == nil) {
+                            menstrualColor = nil
+                            haptics.selection()
+                        }
+
+                        ForEach(MenstrualColor.allCases, id: \.rawValue) { color in
+                            flowChip(title: color.displayText, isSelected: menstrualColor == color) {
+                                menstrualColor = color
+                                haptics.selection()
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Toggle(isOn: dysmenorrheaBinding) {
+                    Text("痛经")
+                        .font(TempureTypography.body)
+                }
+                .toggleStyle(.switch)
             }
 
             Button {
@@ -96,7 +155,7 @@ public struct TagInputSheet: View {
             }
         }
         .padding(18)
-        .presentationDetents([.fraction(0.44)])
+        .presentationDetents([.fraction(0.64)])
         .presentationDragIndicator(.visible)
     }
 
@@ -105,6 +164,9 @@ public struct TagInputSheet: View {
             get: { hasIntercourse },
             set: { value in
                 hasIntercourse = value
+                if !value {
+                    intercourseTime = nil
+                }
                 haptics.selection()
             }
         )
@@ -117,7 +179,19 @@ public struct TagInputSheet: View {
                 hasMenstruation = value
                 if !value {
                     menstrualFlow = nil
+                    menstrualColor = nil
+                    hasDysmenorrhea = false
                 }
+                haptics.selection()
+            }
+        )
+    }
+
+    private var dysmenorrheaBinding: Binding<Bool> {
+        Binding(
+            get: { hasDysmenorrhea },
+            set: { value in
+                hasDysmenorrhea = value
                 haptics.selection()
             }
         )

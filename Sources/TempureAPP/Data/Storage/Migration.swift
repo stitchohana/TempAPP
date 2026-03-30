@@ -18,8 +18,11 @@ enum Migration {
     CREATE TABLE IF NOT EXISTS daily_tags (
       date TEXT PRIMARY KEY,
       has_intercourse INTEGER NOT NULL DEFAULT 0,
+      intercourse_time TEXT,
       has_menstruation INTEGER NOT NULL DEFAULT 0,
       menstrual_flow TEXT,
+      menstrual_color TEXT,
+      has_dysmenorrhea INTEGER NOT NULL DEFAULT 0,
       updated_at INTEGER NOT NULL
     );
     """
@@ -28,4 +31,8 @@ enum Migration {
     CREATE INDEX IF NOT EXISTS idx_daily_tags_updated_at
     ON daily_tags(updated_at);
     """
+
+    static let addIntercourseTimeColumn = "ALTER TABLE daily_tags ADD COLUMN intercourse_time TEXT;"
+    static let addMenstrualColorColumn = "ALTER TABLE daily_tags ADD COLUMN menstrual_color TEXT;"
+    static let addHasDysmenorrheaColumn = "ALTER TABLE daily_tags ADD COLUMN has_dysmenorrhea INTEGER NOT NULL DEFAULT 0;"
 }

@@ -44,6 +44,9 @@ public final class SQLiteDatabase: @unchecked Sendable {
         try execute(sql: Migration.createBBTRecordsTable)
         try execute(sql: Migration.createUpdatedAtIndex)
         try execute(sql: Migration.createDailyTagsTable)
+        try executeAllowingDuplicateColumn(sql: Migration.addIntercourseTimeColumn)
+        try executeAllowingDuplicateColumn(sql: Migration.addMenstrualColorColumn)
+        try executeAllowingDuplicateColumn(sql: Migration.addHasDysmenorrheaColumn)
         try execute(sql: Migration.createDailyTagsUpdatedAtIndex)
     }
 
@@ -68,5 +71,15 @@ public final class SQLiteDatabase: @unchecked Sendable {
 
     func finalize(_ statement: OpaquePointer?) {
         sqlite3_finalize(statement)
+    }
+
+    private func executeAllowingDuplicateColumn(sql: String) throws {
+        do {
+            try execute(sql: sql)
+        } catch SQLiteError.stepFailed(let message) where message.localizedCaseInsensitiveContains("duplicate column name") {
+            return
+        } catch {
+            throw error
+        }
     }
 }

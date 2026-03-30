@@ -43,8 +43,11 @@ struct SQLitePersistenceTests {
             try repository.saveTag(
                 on: date,
                 hasIntercourse: true,
+                intercourseTime: .evening,
                 hasMenstruation: true,
-                menstrualFlow: .heavy
+                menstrualFlow: .heavy,
+                menstrualColor: .darkRed,
+                hasDysmenorrhea: true
             )
         }
 
@@ -54,8 +57,11 @@ struct SQLitePersistenceTests {
             let tag = try repository.fetchTag(on: date)
             #expect(tag != nil)
             #expect(tag?.hasIntercourse == true)
+            #expect(tag?.intercourseTime == .evening)
             #expect(tag?.hasMenstruation == true)
             #expect(tag?.menstrualFlow == .heavy)
+            #expect(tag?.menstrualColor == .darkRed)
+            #expect(tag?.hasDysmenorrhea == true)
         }
     }
 
@@ -71,10 +77,26 @@ struct SQLitePersistenceTests {
         let db = try SQLiteDatabase(filename: filename)
         let repository = SQLiteBBTRepository(db: db, dateService: dateService, defaults: .standard)
 
-        try repository.saveTag(on: date, hasIntercourse: true, hasMenstruation: false, menstrualFlow: nil)
+        try repository.saveTag(
+            on: date,
+            hasIntercourse: true,
+            intercourseTime: .night,
+            hasMenstruation: false,
+            menstrualFlow: nil,
+            menstrualColor: nil,
+            hasDysmenorrhea: false
+        )
         #expect(try repository.fetchTag(on: date) != nil)
 
-        try repository.saveTag(on: date, hasIntercourse: false, hasMenstruation: false, menstrualFlow: nil)
+        try repository.saveTag(
+            on: date,
+            hasIntercourse: false,
+            intercourseTime: nil,
+            hasMenstruation: false,
+            menstrualFlow: nil,
+            menstrualColor: nil,
+            hasDysmenorrhea: false
+        )
         #expect(try repository.fetchTag(on: date) == nil)
     }
 }

@@ -27,6 +27,7 @@ public struct HomeView: View {
                     month: viewModel.state.displayMonth,
                     selectedDate: viewModel.state.selectedDate,
                     recordedDateKeys: Set(viewModel.recordsByDateKey.keys),
+                    tagsByDateKey: viewModel.tagsByDateKey,
                     dateService: DateService.shared,
                     onSelectDate: { viewModel.selectDate($0) },
                     onPreviousMonth: { viewModel.showPreviousMonth() },
@@ -34,10 +35,21 @@ public struct HomeView: View {
                 )
                 .frame(maxHeight: 330)
 
+                Picker("图表范围", selection: Binding(
+                    get: { viewModel.state.chartRange },
+                    set: { viewModel.updateChartRange($0) }
+                )) {
+                    ForEach(ChartRange.allCases, id: \.self) { range in
+                        Text(range.title).tag(range)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, 6)
+
                 BBTLineChartView(
-                    monthDates: DateService.shared.daysInMonth(containing: viewModel.state.displayMonth),
-                    recordsByDateKey: viewModel.recordsByDateKey,
-                    tagsByDateKey: viewModel.tagsByDateKey,
+                    monthDates: viewModel.state.chartDates,
+                    recordsByDateKey: viewModel.chartRecordsByDateKey,
+                    tagsByDateKey: viewModel.chartTagsByDateKey,
                     selectedDate: viewModel.state.selectedDate,
                     hoverRecord: viewModel.hoverRecord,
                     coverlineCelsius: viewModel.state.coverline,
@@ -112,8 +124,11 @@ public struct HomeView: View {
         ) {
             TagInputSheet(
                 hasIntercourse: $viewModel.tagHasIntercourse,
+                intercourseTime: $viewModel.tagIntercourseTime,
                 hasMenstruation: $viewModel.tagHasMenstruation,
                 menstrualFlow: $viewModel.tagMenstrualFlow,
+                menstrualColor: $viewModel.tagMenstrualColor,
+                hasDysmenorrhea: $viewModel.tagHasDysmenorrhea,
                 onSave: viewModel.saveTagInput,
                 onDismiss: viewModel.dismissTagInput
             )

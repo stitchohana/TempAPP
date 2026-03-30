@@ -124,14 +124,20 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
     public func saveTag(
         on date: Date,
         hasIntercourse: Bool,
+        intercourseTime: IntercourseTime?,
         hasMenstruation: Bool,
-        menstrualFlow: MenstrualFlow?
+        menstrualFlow: MenstrualFlow?,
+        menstrualColor: MenstrualColor?,
+        hasDysmenorrhea: Bool
     ) throws {
         lock.lock()
         defer { lock.unlock() }
 
         let dayKey = dateService.storageKey(for: date)
+        let normalizedIntercourseTime = hasIntercourse ? intercourseTime : nil
         let normalizedFlow = hasMenstruation ? menstrualFlow : nil
+        let normalizedColor = hasMenstruation ? menstrualColor : nil
+        let normalizedDysmenorrhea = hasMenstruation ? hasDysmenorrhea : false
 
         if !hasIntercourse, !hasMenstruation {
             let deleteSQL = "DELETE FROM daily_tags WHERE date = ?;"
@@ -145,12 +151,24 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         }
 
         let upsertSQL = """
-        INSERT INTO daily_tags(date, has_intercourse, has_menstruation, menstrual_flow, updated_at)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO daily_tags(
+            date,
+            has_intercourse,
+            intercourse_time,
+            has_menstruation,
+            menstrual_flow,
+            menstrual_color,
+            has_dysmenorrhea,
+            updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(date) DO UPDATE SET
         has_intercourse = excluded.has_intercourse,
+        intercourse_time = excluded.intercourse_time,
         has_menstruation = excluded.has_menstruation,
         menstrual_flow = excluded.menstrual_flow,
+        menstrual_color = excluded.menstrual_color,
+        has_dysmenorrhea = excluded.has_dysmenorrhea,
         updated_at = excluded.updated_at;
         """
 
@@ -159,15 +177,27 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
 
         sqlite3_bind_text(statement, 1, (dayKey as NSString).utf8String, -1, sqliteTransient)
         sqlite3_bind_int(statement, 2, hasIntercourse ? 1 : 0)
-        sqlite3_bind_int(statement, 3, hasMenstruation ? 1 : 0)
-
-        if let normalizedFlow {
-            sqlite3_bind_text(statement, 4, (normalizedFlow.rawValue as NSString).utf8String, -1, sqliteTransient)
+        if let normalizedIntercourseTime {
+            sqlite3_bind_text(statement, 3, (normalizedIntercourseTime.rawValue as NSString).utf8String, -1, sqliteTransient)
         } else {
-            sqlite3_bind_null(statement, 4)
+            sqlite3_bind_null(statement, 3)
         }
 
-        sqlite3_bind_int64(statement, 5, Int64(Date().timeIntervalSince1970))
+        sqlite3_bind_int(statement, 4, hasMenstruation ? 1 : 0)
+
+        if let normalizedFlow {
+            sqlite3_bind_text(statement, 5, (normalizedFlow.rawValue as NSString).utf8String, -1, sqliteTransient)
+        } else {
+            sqlite3_bind_null(statement, 5)
+        }
+
+        if let normalizedColor {
+            sqlite3_bind_text(statement, 6, (normalizedColor.rawValue as NSString).utf8String, -1, sqliteTransient)
+        } else {
+            sqlite3_bind_null(statement, 6)
+        }
+        sqlite3_bind_int(statement, 7, normalizedDysmenorrhea ? 1 : 0)
+        sqlite3_bind_int64(statement, 8, Int64(Date().timeIntervalSince1970))
 
         if sqlite3_step(statement) != SQLITE_DONE {
             throw SQLiteError.stepFailed("Could not upsert daily tag")
@@ -179,7 +209,7 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         defer { lock.unlock() }
 
         let sql = """
-        SELECT date, has_intercourse, has_menstruation, menstrual_flow, updated_at
+        SELECT date, has_intercourse, intercourse_time, has_menstruation, menstrual_flow, menstrual_color, has_dysmenorrhea, updated_at
         FROM daily_tags
         WHERE date = ?
         LIMIT 1;
@@ -206,7 +236,7 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         let endKey = dateService.storageKey(for: range.end)
 
         let sql = """
-        SELECT date, has_intercourse, has_menstruation, menstrual_flow, updated_at
+        SELECT date, has_intercourse, intercourse_time, has_menstruation, menstrual_flow, menstrual_color, has_dysmenorrhea, updated_at
         FROM daily_tags
         WHERE date >= ? AND date < ?
         ORDER BY date ASC;
@@ -232,7 +262,7 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         defer { lock.unlock() }
 
         let sql = """
-        SELECT date, has_intercourse, has_menstruation, menstrual_flow, updated_at
+        SELECT date, has_intercourse, intercourse_time, has_menstruation, menstrual_flow, menstrual_color, has_dysmenorrhea, updated_at
         FROM daily_tags
         ORDER BY date ASC;
         """
@@ -288,22 +318,42 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         }
 
         let hasIntercourse = sqlite3_column_int(statement, 1) == 1
-        let hasMenstruation = sqlite3_column_int(statement, 2) == 1
+        var intercourseTime: IntercourseTime?
+        if let intercourseTimeCString = sqlite3_column_text(statement, 2) {
+            intercourseTime = IntercourseTime(rawValue: String(cString: intercourseTimeCString))
+        }
+        if !hasIntercourse {
+            intercourseTime = nil
+        }
+
+        let hasMenstruation = sqlite3_column_int(statement, 3) == 1
 
         var flow: MenstrualFlow?
-        if let flowCString = sqlite3_column_text(statement, 3) {
+        if let flowCString = sqlite3_column_text(statement, 4) {
             flow = MenstrualFlow(rawValue: String(cString: flowCString))
         }
         if !hasMenstruation {
             flow = nil
         }
 
-        let updatedAt = sqlite3_column_int64(statement, 4)
+        var color: MenstrualColor?
+        if let colorCString = sqlite3_column_text(statement, 5) {
+            color = MenstrualColor(rawValue: String(cString: colorCString))
+        }
+        if !hasMenstruation {
+            color = nil
+        }
+
+        let hasDysmenorrhea = hasMenstruation ? (sqlite3_column_int(statement, 6) == 1) : false
+        let updatedAt = sqlite3_column_int64(statement, 7)
         return DailyTag(
             date: date,
             hasIntercourse: hasIntercourse,
+            intercourseTime: intercourseTime,
             hasMenstruation: hasMenstruation,
             menstrualFlow: flow,
+            menstrualColor: color,
+            hasDysmenorrhea: hasDysmenorrhea,
             updatedAt: updatedAt
         )
     }
