@@ -1,9 +1,16 @@
 #if canImport(SwiftUI)
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 public struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
     @Environment(\.colorScheme) private var colorScheme
+    @State private var chartRenderSize: CGSize = .zero
+#if canImport(UIKit)
+    @State private var chartImageSaveHandler: ChartImageSaveHandler?
+#endif
 
     public init(viewModel: HomeViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -35,31 +42,31 @@ public struct HomeView: View {
                 )
                 .frame(maxHeight: 330)
 
-                Picker("图表范围", selection: Binding(
-                    get: { viewModel.state.chartRange },
-                    set: { viewModel.updateChartRange($0) }
-                )) {
-                    ForEach(ChartRange.allCases, id: \.self) { range in
-                        Text(range.title).tag(range)
+                HStack(spacing: 8) {
+                    Picker("图表范围", selection: Binding(
+                        get: { viewModel.state.chartRange },
+                        set: { viewModel.updateChartRange($0) }
+                    )) {
+                        ForEach(ChartRange.allCases, id: \.self) { range in
+                            Text(range.title).tag(range)
+                        }
                     }
+                    .pickerStyle(.segmented)
+
+                    exportChartButton
                 }
-                .pickerStyle(.segmented)
                 .padding(.horizontal, 6)
 
-                BBTLineChartView(
-                    monthDates: viewModel.state.chartDates,
-                    recordsByDateKey: viewModel.chartRecordsByDateKey,
-                    tagsByDateKey: viewModel.chartTagsByDateKey,
-                    selectedDate: viewModel.state.selectedDate,
-                    hoverRecord: viewModel.hoverRecord,
-                    coverlineCelsius: viewModel.state.coverline,
-                    isPregnancySignal: viewModel.state.isPregnancySignal,
-                    unit: viewModel.state.unit,
-                    dateService: DateService.shared,
-                    onSelectDate: { viewModel.selectDate($0) },
-                    onHoverRecord: { viewModel.hoverRecord = $0 }
-                )
-                .frame(maxHeight: 320)
+                chartView
+                    .frame(maxHeight: 320)
+                    .background(
+                        GeometryReader { proxy in
+                            Color.clear
+                                .onAppear {
+                                    chartRenderSize = proxy.size
+                                }
+                        }
+                    )
 
                 if viewModel.state.isPregnancySignal {
                     Text("体温已连续高温 15 天，也许会有一个好消息。建议使用验孕棒测试。")
@@ -159,6 +166,99 @@ public struct HomeView: View {
         )
     }
 
+    private var chartView: some View {
+        BBTLineChartView(
+            monthDates: viewModel.state.chartDates,
+            recordsByDateKey: viewModel.chartRecordsByDateKey,
+            tagsByDateKey: viewModel.chartTagsByDateKey,
+            selectedDate: viewModel.state.selectedDate,
+            hoverRecord: viewModel.hoverRecord,
+            coverlineCelsius: viewModel.state.coverline,
+            isPregnancySignal: viewModel.state.isPregnancySignal,
+            unit: viewModel.state.unit,
+            dateService: DateService.shared,
+            onSelectDate: { viewModel.selectDate($0) },
+            onHoverRecord: { viewModel.hoverRecord = $0 }
+        )
+    }
+
+    @ViewBuilder
+    private var exportChartButton: some View {
+#if canImport(UIKit)
+        Button(action: exportCurrentChartImage) {
+            Image(systemName: "square.and.arrow.down")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 38, height: 32)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .fill(TempureColors.sageGreen)
+                        .shadow(color: TempureColors.sageGreen.opacity(colorScheme == .dark ? 0.8 : 0.3), radius: 4)
+                )
+        }
+        .buttonStyle(.plain)
+#endif
+    }
+
+#if canImport(UIKit)
+    private func exportCurrentChartImage() {
+        guard let image = renderChartImage() else {
+            viewModel.errorMessage = "导出失败，请重试。"
+            return
+        }
+
+        let handler = ChartImageSaveHandler { error in
+            DispatchQueue.main.async {
+                if let error {
+                    viewModel.errorMessage = "保存失败：\(error.localizedDescription)"
+                } else {
+                    viewModel.errorMessage = "折线图已保存到相册。"
+                }
+                chartImageSaveHandler = nil
+            }
+        }
+        chartImageSaveHandler = handler
+
+        UIImageWriteToSavedPhotosAlbum(
+            image,
+            handler,
+            #selector(ChartImageSaveHandler.image(_:didFinishSavingWithError:contextInfo:)),
+            nil
+        )
+    }
+
+    private func renderChartImage() -> UIImage? {
+        let width = chartRenderSize.width > 1 ? chartRenderSize.width : max(UIScreen.main.bounds.width - 28, 320)
+        let height = chartRenderSize.height > 1 ? chartRenderSize.height : 320
+
+        let chartView = BBTLineChartView(
+            monthDates: viewModel.state.chartDates,
+            recordsByDateKey: viewModel.chartRecordsByDateKey,
+            tagsByDateKey: viewModel.chartTagsByDateKey,
+            selectedDate: viewModel.state.selectedDate,
+            hoverRecord: viewModel.hoverRecord,
+            coverlineCelsius: viewModel.state.coverline,
+            isPregnancySignal: viewModel.state.isPregnancySignal,
+            unit: viewModel.state.unit,
+            dateService: DateService.shared,
+            onSelectDate: { _ in },
+            onHoverRecord: { _ in }
+        )
+        .frame(width: width, height: height)
+        .environment(\.colorScheme, .light)
+
+        let exportView = ZStack {
+            Color.white
+            chartView
+        }
+        .frame(width: width, height: height)
+
+        let renderer = ImageRenderer(content: exportView)
+        renderer.scale = UIScreen.main.scale
+        return renderer.uiImage
+    }
+#endif
+
     private var backgroundColors: [Color] {
         if colorScheme == .dark {
             return [
@@ -174,4 +274,19 @@ public struct HomeView: View {
         ]
     }
 }
+
+#if canImport(UIKit)
+private final class ChartImageSaveHandler: NSObject {
+    private let completion: (Error?) -> Void
+
+    init(completion: @escaping (Error?) -> Void) {
+        self.completion = completion
+    }
+
+    @objc
+    func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeMutableRawPointer?) {
+        completion(error)
+    }
+}
+#endif
 #endif

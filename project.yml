@@ -28,6 +28,7 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: 保存基础体温折线图到相册，用于分享和留存记录。
         SUPPORTS_MACCATALYST: NO
         TARGETED_DEVICE_FAMILY: "1"
     dependencies:

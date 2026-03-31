@@ -465,6 +465,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "保存基础体温折线图到相册，用于分享和留存记录。";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
@@ -573,6 +574,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleShortVersionString = "$(MARKETING_VERSION)";
 				INFOPLIST_KEY_CFBundleVersion = "$(CURRENT_PROJECT_VERSION)";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "保存基础体温折线图到相册，用于分享和留存记录。";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
