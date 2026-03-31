@@ -65,6 +65,30 @@ struct SQLitePersistenceTests {
         }
     }
 
+    @Test("Saved weights should survive repository restart")
+    func weightsPersistAcrossLaunches() throws {
+        let filename = "tempure-weight-test-\(UUID().uuidString).sqlite3"
+        let dbURL = try SQLiteDatabase.databaseURL(filename: filename)
+        defer { try? FileManager.default.removeItem(at: dbURL) }
+
+        let dateService = DateService()
+        let date = dateService.dayStart(for: Date(timeIntervalSince1970: 1_713_333_333))
+
+        do {
+            let db = try SQLiteDatabase(filename: filename)
+            let repository = SQLiteBBTRepository(db: db, dateService: dateService, defaults: .standard)
+            try repository.saveWeight(on: date, weightKg: 58.2)
+        }
+
+        do {
+            let db = try SQLiteDatabase(filename: filename)
+            let repository = SQLiteBBTRepository(db: db, dateService: dateService, defaults: .standard)
+            let record = try repository.fetchWeight(on: date)
+            #expect(record != nil)
+            #expect(record?.weightKg == 58.2)
+        }
+    }
+
     @Test("Saving empty tag payload should clear existing tag")
     func clearTagWhenNothingSelected() throws {
         let filename = "tempure-tag-clear-\(UUID().uuidString).sqlite3"

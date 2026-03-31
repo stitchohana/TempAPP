@@ -43,6 +43,8 @@ public final class SQLiteDatabase: @unchecked Sendable {
     private func migrate() throws {
         try execute(sql: Migration.createBBTRecordsTable)
         try execute(sql: Migration.createUpdatedAtIndex)
+        try execute(sql: Migration.createWeightRecordsTable)
+        try execute(sql: Migration.createWeightUpdatedAtIndex)
         try execute(sql: Migration.createDailyTagsTable)
         try addColumnIfMissing(table: "daily_tags", column: "intercourse_time", sql: Migration.addIntercourseTimeColumn)
         try addColumnIfMissing(table: "daily_tags", column: "menstrual_color", sql: Migration.addMenstrualColorColumn)

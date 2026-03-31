@@ -4,6 +4,7 @@ import SwiftUI
 public struct BBTLineChartView: View {
     public var monthDates: [Date]
     public var recordsByDateKey: [String: BBTRecord]
+    public var weightRecordsByDateKey: [String: WeightRecord]
     public var tagsByDateKey: [String: DailyTag]
     public var selectedDate: Date
     public var hoverRecord: BBTRecord?
@@ -19,6 +20,7 @@ public struct BBTLineChartView: View {
     public init(
         monthDates: [Date],
         recordsByDateKey: [String: BBTRecord],
+        weightRecordsByDateKey: [String: WeightRecord],
         tagsByDateKey: [String: DailyTag],
         selectedDate: Date,
         hoverRecord: BBTRecord?,
@@ -31,6 +33,7 @@ public struct BBTLineChartView: View {
     ) {
         self.monthDates = monthDates
         self.recordsByDateKey = recordsByDateKey
+        self.weightRecordsByDateKey = weightRecordsByDateKey
         self.tagsByDateKey = tagsByDateKey
         self.selectedDate = selectedDate
         self.hoverRecord = hoverRecord
@@ -47,6 +50,9 @@ public struct BBTLineChartView: View {
             let frame = chartFrame(in: proxy.size)
             let points = plottedPoints(in: frame)
             let segments = lineSegments(from: points)
+            let weightRange = weightRangeForAxis()
+            let weightPoints = plottedWeightPoints(in: frame, range: weightRange)
+            let weightSegments = weightLineSegments(from: weightPoints)
             let marker = markerRecord
             let tagMarkers = tagMarkers(from: points)
             let axisRange = rangeForAxis(points: points)
@@ -60,6 +66,15 @@ public struct BBTLineChartView: View {
                         .font(.system(size: 10, weight: .medium, design: .monospaced))
                         .foregroundStyle(TempureColors.subtleDot.opacity(0.92))
                         .position(x: frame.minX - 20, y: tick.y)
+                }
+
+                if let weightRange {
+                    ForEach(weightTicks(range: weightRange, frame: frame)) { tick in
+                        Text(String(format: "%.1fkg", tick.value))
+                            .font(.system(size: 10, weight: .medium, design: .monospaced))
+                            .foregroundStyle(weightLineColor.opacity(0.92))
+                            .position(x: frame.maxX + 22, y: tick.y)
+                    }
                 }
 
                 ForEach(dateTicks(frame: frame)) { tick in
@@ -93,6 +108,19 @@ public struct BBTLineChartView: View {
                         )
                 }
 
+                ForEach(weightSegments.indices, id: \.self) { index in
+                    let segment = weightSegments[index]
+                    segmentPath(from: segment.start.point, to: segment.end.point)
+                        .stroke(
+                            weightLineColor.opacity(0.9),
+                            style: StrokeStyle(
+                                lineWidth: segment.isDashed ? 1.2 : 2.2,
+                                lineCap: .round,
+                                dash: segment.isDashed ? [4, 4] : []
+                            )
+                        )
+                }
+
                 ForEach(points, id: \.key) { point in
                     Circle()
                         .fill(pointColor(for: point))
@@ -101,6 +129,13 @@ public struct BBTLineChartView: View {
                             color: point.key == selectedDateKey && colorScheme == .dark ? pointColor(for: point).opacity(0.8) : .clear,
                             radius: 6
                         )
+                        .position(point.point)
+                }
+
+                ForEach(weightPoints, id: \.key) { point in
+                    Circle()
+                        .fill(weightLineColor)
+                        .frame(width: point.key == selectedDateKey ? 8 : 5, height: point.key == selectedDateKey ? 8 : 5)
                         .position(point.point)
                 }
 
@@ -187,9 +222,15 @@ public struct BBTLineChartView: View {
 
         let value = UnitConversionService.toDisplayValue(celsius: record.temperatureCelsius, unit: unit)
         let tagText = tagText(for: record.date)
+        let weightText = weightText(for: record.date)
         return VStack(alignment: .leading, spacing: 2) {
             Text("\(formatter.string(from: record.date))  \(String(format: "%.1f", value))\(unit.symbol)")
                 .font(TempureTypography.caption)
+            if let weightText {
+                Text(weightText)
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(weightLineColor)
+            }
             if let tagText {
                 Text(tagText)
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
@@ -219,6 +260,16 @@ public struct BBTLineChartView: View {
     private func rangeForAxis(points: [PlottedPoint]) -> ClosedRange<Double> {
         let coverDisplay = coverlineCelsius.map { UnitConversionService.toDisplayValue(celsius: $0, unit: unit) }
         return yRange(points: points.map(\.value), include: coverDisplay)
+    }
+
+    private var weightLineColor: Color {
+        Color(red: 0.29, green: 0.49, blue: 0.83)
+    }
+
+    private func weightText(for date: Date) -> String? {
+        let key = dateService.storageKey(for: date)
+        guard let record = weightRecordsByDateKey[key] else { return nil }
+        return "体重 \(String(format: "%.1f", record.weightKg))kg"
     }
 
     private func tagText(for date: Date) -> String? {
@@ -257,7 +308,7 @@ public struct BBTLineChartView: View {
 
     private func chartFrame(in size: CGSize) -> CGRect {
         let leftInset: CGFloat = 48
-        let rightInset: CGFloat = 14
+        let rightInset: CGFloat = weightRecordsByDateKey.isEmpty ? 14 : 58
         let topInset: CGFloat = 16
         let bottomInset: CGFloat = 28
         let width = max(size.width - leftInset - rightInset, 40)
@@ -311,6 +362,50 @@ public struct BBTLineChartView: View {
         }
     }
 
+    private func weightRangeForAxis() -> ClosedRange<Double>? {
+        let values = monthDates.compactMap { date -> Double? in
+            let key = dateService.storageKey(for: date)
+            return weightRecordsByDateKey[key]?.weightKg
+        }.filter(\.isFinite)
+
+        guard let minRaw = values.min(), let maxRaw = values.max() else {
+            return nil
+        }
+
+        var minValue = minRaw
+        var maxValue = maxRaw
+        let spread = maxValue - minValue
+        let padding = max(spread * 0.15, 0.3)
+        minValue -= padding
+        maxValue += padding
+
+        if maxValue - minValue < 0.6 {
+            minValue -= 0.3
+            maxValue += 0.3
+        }
+        return minValue...maxValue
+    }
+
+    private func plottedWeightPoints(in frame: CGRect, range: ClosedRange<Double>?) -> [WeightPlottedPoint] {
+        guard let range else { return [] }
+        guard monthDates.count > 1 else { return [] }
+
+        let stepX = frame.width / CGFloat(max(monthDates.count - 1, 1))
+        return monthDates.enumerated().compactMap { index, date in
+            let key = dateService.storageKey(for: date)
+            guard let record = weightRecordsByDateKey[key] else { return nil }
+            let x = frame.minX + CGFloat(index) * stepX
+            let y = weightY(value: record.weightKg, range: range, frame: frame)
+            return WeightPlottedPoint(
+                key: key,
+                dateIndex: index,
+                value: record.weightKg,
+                record: record,
+                point: CGPoint(x: x, y: y)
+            )
+        }
+    }
+
     private func tagMarkers(from points: [PlottedPoint]) -> [TagMarker] {
         points.compactMap { point in
             guard let tag = tagsByDateKey[point.key], tag.hasAnyTag else {
@@ -325,6 +420,14 @@ public struct BBTLineChartView: View {
             TemperatureAxisTick(id: 0, value: roundToTenth(range.upperBound), y: frame.minY),
             TemperatureAxisTick(id: 1, value: roundToTenth((range.upperBound + range.lowerBound) / 2), y: frame.midY),
             TemperatureAxisTick(id: 2, value: roundToTenth(range.lowerBound), y: frame.maxY),
+        ]
+    }
+
+    private func weightTicks(range: ClosedRange<Double>, frame: CGRect) -> [TemperatureAxisTick] {
+        [
+            TemperatureAxisTick(id: 100, value: roundToTenth(range.upperBound), y: frame.minY),
+            TemperatureAxisTick(id: 101, value: roundToTenth((range.upperBound + range.lowerBound) / 2), y: frame.midY),
+            TemperatureAxisTick(id: 102, value: roundToTenth(range.lowerBound), y: frame.maxY),
         ]
     }
 
@@ -381,6 +484,14 @@ public struct BBTLineChartView: View {
         return frame.maxY - CGFloat(ratio) * frame.height
     }
 
+    private func weightY(value: Double, range: ClosedRange<Double>, frame: CGRect) -> CGFloat {
+        guard value.isFinite else { return frame.midY }
+        let denominator = range.upperBound - range.lowerBound
+        guard denominator > 0, denominator.isFinite else { return frame.midY }
+        let ratio = (value - range.lowerBound) / denominator
+        return frame.maxY - CGFloat(ratio) * frame.height
+    }
+
     private func lineSegments(from points: [PlottedPoint]) -> [LineSegment] {
         guard points.count > 1 else { return [] }
         var output: [LineSegment] = []
@@ -393,6 +504,27 @@ public struct BBTLineChartView: View {
 
             output.append(
                 LineSegment(
+                    start: previous,
+                    end: current,
+                    isDashed: isDashed
+                )
+            )
+        }
+        return output
+    }
+
+    private func weightLineSegments(from points: [WeightPlottedPoint]) -> [WeightLineSegment] {
+        guard points.count > 1 else { return [] }
+        var output: [WeightLineSegment] = []
+
+        for index in 1..<points.count {
+            let previous = points[index - 1]
+            let current = points[index]
+            let dayGap = current.dateIndex - previous.dateIndex
+            let isDashed = dayGap > 1
+
+            output.append(
+                WeightLineSegment(
                     start: previous,
                     end: current,
                     isDashed: isDashed
@@ -448,6 +580,20 @@ private struct PlottedPoint {
 private struct LineSegment {
     let start: PlottedPoint
     let end: PlottedPoint
+    let isDashed: Bool
+}
+
+private struct WeightPlottedPoint {
+    let key: String
+    let dateIndex: Int
+    let value: Double
+    let record: WeightRecord
+    let point: CGPoint
+}
+
+private struct WeightLineSegment {
+    let start: WeightPlottedPoint
+    let end: WeightPlottedPoint
     let isDashed: Bool
 }
 

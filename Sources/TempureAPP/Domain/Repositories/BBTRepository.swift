@@ -5,6 +5,9 @@ public protocol BBTRepository: Sendable {
     func fetchTemperature(on date: Date) throws -> BBTRecord?
     func fetchMonthlyRecords(containing date: Date) throws -> [BBTRecord]
     func fetchAllRecords() throws -> [BBTRecord]
+    func saveWeight(on date: Date, weightKg: Double) throws
+    func fetchWeight(on date: Date) throws -> WeightRecord?
+    func fetchAllWeights() throws -> [WeightRecord]
     func saveTag(
         on date: Date,
         hasIntercourse: Bool,

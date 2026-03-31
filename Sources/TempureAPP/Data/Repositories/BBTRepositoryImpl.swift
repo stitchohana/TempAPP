@@ -121,6 +121,76 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         return records
     }
 
+    public func saveWeight(on date: Date, weightKg: Double) throws {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let sql = """
+        INSERT INTO weight_records(date, weight_kg, updated_at)
+        VALUES (?, ?, ?)
+        ON CONFLICT(date) DO UPDATE SET
+        weight_kg = excluded.weight_kg,
+        updated_at = excluded.updated_at;
+        """
+
+        let statement = try db.prepare(sql: sql)
+        defer { db.finalize(statement) }
+
+        let dayKey = dateService.storageKey(for: date)
+        sqlite3_bind_text(statement, 1, (dayKey as NSString).utf8String, -1, sqliteTransient)
+        sqlite3_bind_double(statement, 2, weightKg)
+        sqlite3_bind_int64(statement, 3, Int64(Date().timeIntervalSince1970))
+
+        if sqlite3_step(statement) != SQLITE_DONE {
+            throw SQLiteError.stepFailed("Could not upsert weight")
+        }
+    }
+
+    public func fetchWeight(on date: Date) throws -> WeightRecord? {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let sql = """
+        SELECT date, weight_kg, updated_at
+        FROM weight_records
+        WHERE date = ?
+        LIMIT 1;
+        """
+
+        let statement = try db.prepare(sql: sql)
+        defer { db.finalize(statement) }
+
+        let dayKey = dateService.storageKey(for: date)
+        sqlite3_bind_text(statement, 1, (dayKey as NSString).utf8String, -1, sqliteTransient)
+
+        if sqlite3_step(statement) == SQLITE_ROW {
+            return decodeWeight(from: statement)
+        }
+        return nil
+    }
+
+    public func fetchAllWeights() throws -> [WeightRecord] {
+        lock.lock()
+        defer { lock.unlock() }
+
+        let sql = """
+        SELECT date, weight_kg, updated_at
+        FROM weight_records
+        ORDER BY date ASC;
+        """
+
+        let statement = try db.prepare(sql: sql)
+        defer { db.finalize(statement) }
+
+        var records: [WeightRecord] = []
+        while sqlite3_step(statement) == SQLITE_ROW {
+            if let record = decodeWeight(from: statement) {
+                records.append(record)
+            }
+        }
+        return records
+    }
+
     public func saveTag(
         on date: Date,
         hasIntercourse: Bool,
@@ -356,5 +426,21 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
             hasDysmenorrhea: hasDysmenorrhea,
             updatedAt: updatedAt
         )
+    }
+
+    private func decodeWeight(from statement: OpaquePointer?) -> WeightRecord? {
+        guard
+            let dateCString = sqlite3_column_text(statement, 0),
+            let date = dateService.date(from: String(cString: dateCString))
+        else {
+            return nil
+        }
+
+        let weight = sqlite3_column_double(statement, 1)
+        guard weight.isFinite else {
+            return nil
+        }
+        let updatedAt = sqlite3_column_int64(statement, 2)
+        return WeightRecord(date: date, weightKg: weight, updatedAt: updatedAt)
     }
 }

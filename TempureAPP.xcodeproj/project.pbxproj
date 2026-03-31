@@ -38,7 +38,9 @@
 		A4F576A704EB384CCF062BD9 /* TemperatureUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9186F107CFEC6800D70BFC /* TemperatureUnit.swift */; };
 		AD4E8886926C7B6F917C93DB /* CycleAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DE4C536C980F08F17B6F94F /* CycleAnalysis.swift */; };
 		B24FBA1E974C2D59B92292A2 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F6DE419525AC8C7C1285193 /* AppContainer.swift */; };
+		BE2A8B6D9B34B85350193C7A /* WeightRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59FBCBA280006972BB19957B /* WeightRecord.swift */; };
 		C31A15A9BF4B3210A730FF2E /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30353DCCCCEF5F24138340B5 /* HomeViewModel.swift */; };
+		D871B9089829477C4DB4BB3A /* WeightInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7648BEC26C81A8516D98DE1 /* WeightInputSheet.swift */; };
 		DC3F067B4BCD571B01DE3DEE /* DateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C34DEBFA1CD2AB357C939F9E /* DateService.swift */; };
 		DD21ED9320DC605D50151489 /* MenstrualFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76E47786F5766CEBB278AAC9 /* MenstrualFlow.swift */; };
 		EC21F5BE70386AED3EA349F0 /* TagInputSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9E66837BF9E2022063C45D /* TagInputSheet.swift */; };
@@ -68,6 +70,7 @@
 		3820F350CFAC69C126DF7176 /* BBTRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTRepository.swift; sourceTree = "<group>"; };
 		3F6DE419525AC8C7C1285193 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		5115A4CEB5E24EC372CC8B56 /* HomeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeState.swift; sourceTree = "<group>"; };
+		59FBCBA280006972BB19957B /* WeightRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightRecord.swift; sourceTree = "<group>"; };
 		5CF87C02272DC19D415CC32D /* BBTRepositoryImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTRepositoryImpl.swift; sourceTree = "<group>"; };
 		6DAC4CE214F1AE3392876DC7 /* GetMonthlyRecordsUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMonthlyRecordsUseCase.swift; sourceTree = "<group>"; };
 		728EEC696ECC07C1119F7A5B /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
@@ -82,6 +85,7 @@
 		8A9D8E90BEB4714F5300665C /* UnitConversionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitConversionService.swift; sourceTree = "<group>"; };
 		9A7413A1E7A3CA681CB9D7E0 /* Migration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migration.swift; sourceTree = "<group>"; };
 		A5440ABFA0DBCFE5D7B175FC /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
+		A7648BEC26C81A8516D98DE1 /* WeightInputSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightInputSheet.swift; sourceTree = "<group>"; };
 		A973A8C4159A56852AB360B8 /* TempureAPPTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TempureAPPTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B31237438F9320DB6931A731 /* AnalyzeCycleUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyzeCycleUseCaseTests.swift; sourceTree = "<group>"; };
 		B53EE20F69386B5E1A652CF8 /* BBTRecordRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BBTRecordRow.swift; sourceTree = "<group>"; };
@@ -193,6 +197,7 @@
 				C131B19A7C945FB4473DB917 /* MenstrualColor.swift */,
 				76E47786F5766CEBB278AAC9 /* MenstrualFlow.swift */,
 				CD9186F107CFEC6800D70BFC /* TemperatureUnit.swift */,
+				59FBCBA280006972BB19957B /* WeightRecord.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -271,6 +276,7 @@
 				ED9E66837BF9E2022063C45D /* TagInputSheet.swift */,
 				F27909331B9B558E188E9122 /* TempInputSheet.swift */,
 				ECA453B5CFDCF721FC4D48F5 /* TinySettingsView.swift */,
+				A7648BEC26C81A8516D98DE1 /* WeightInputSheet.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -440,6 +446,8 @@
 				EDA2260EDD9BD9900225967A /* TinySettingsView.swift in Sources */,
 				120E8E76A939044DE8618D7B /* Typography.swift in Sources */,
 				87DA3E439A22385905F89F0B /* UnitConversionService.swift in Sources */,
+				D871B9089829477C4DB4BB3A /* WeightInputSheet.swift in Sources */,
+				BE2A8B6D9B34B85350193C7A /* WeightRecord.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

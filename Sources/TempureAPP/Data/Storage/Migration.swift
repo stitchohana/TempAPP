@@ -14,6 +14,19 @@ enum Migration {
     ON bbt_records(updated_at);
     """
 
+    static let createWeightRecordsTable = """
+    CREATE TABLE IF NOT EXISTS weight_records (
+      date TEXT PRIMARY KEY,
+      weight_kg REAL NOT NULL,
+      updated_at INTEGER NOT NULL
+    );
+    """
+
+    static let createWeightUpdatedAtIndex = """
+    CREATE INDEX IF NOT EXISTS idx_weight_updated_at
+    ON weight_records(updated_at);
+    """
+
     static let createDailyTagsTable = """
     CREATE TABLE IF NOT EXISTS daily_tags (
       date TEXT PRIMARY KEY,

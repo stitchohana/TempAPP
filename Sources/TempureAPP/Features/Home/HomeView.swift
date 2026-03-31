@@ -94,6 +94,19 @@ public struct HomeView: View {
                 }
                 .buttonStyle(.plain)
 
+                Button(action: viewModel.presentWeightInput) {
+                    Image(systemName: "scalemass")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 46, height: 46)
+                        .background(
+                            Circle()
+                                .fill(TempureColors.sageGreen.opacity(0.9))
+                                .shadow(color: TempureColors.sageGreen.opacity(colorScheme == .dark ? 0.8 : 0.35), radius: 7)
+                        )
+                }
+                .buttonStyle(.plain)
+
                 Button(action: viewModel.presentInput) {
                     Image(systemName: "plus")
                         .font(.system(size: 21, weight: .semibold))
@@ -121,6 +134,19 @@ public struct HomeView: View {
                 range: viewModel.inputRangeForCurrentUnit,
                 onSave: viewModel.saveInput,
                 onDismiss: viewModel.dismissInput
+            )
+        }
+        .sheet(
+            isPresented: Binding(
+                get: { viewModel.state.isWeightSheetPresented },
+                set: { if !$0 { viewModel.dismissWeightInput() } }
+            )
+        ) {
+            WeightInputSheet(
+                inputValue: $viewModel.inputWeightValue,
+                range: viewModel.inputWeightRangeKg,
+                onSave: viewModel.saveWeightInput,
+                onDismiss: viewModel.dismissWeightInput
             )
         }
         .sheet(
@@ -170,6 +196,7 @@ public struct HomeView: View {
         BBTLineChartView(
             monthDates: viewModel.state.chartDates,
             recordsByDateKey: viewModel.chartRecordsByDateKey,
+            weightRecordsByDateKey: viewModel.chartWeightRecordsByDateKey,
             tagsByDateKey: viewModel.chartTagsByDateKey,
             selectedDate: viewModel.state.selectedDate,
             hoverRecord: viewModel.hoverRecord,
@@ -234,6 +261,7 @@ public struct HomeView: View {
         let chartView = BBTLineChartView(
             monthDates: viewModel.state.chartDates,
             recordsByDateKey: viewModel.chartRecordsByDateKey,
+            weightRecordsByDateKey: viewModel.chartWeightRecordsByDateKey,
             tagsByDateKey: viewModel.chartTagsByDateKey,
             selectedDate: viewModel.state.selectedDate,
             hoverRecord: viewModel.hoverRecord,

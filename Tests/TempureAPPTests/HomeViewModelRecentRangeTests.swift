@@ -118,10 +118,12 @@ private struct RecentRangeNoopHapticsService: HapticsService {
 
 private final class RecentRangeStubRepository: BBTRepository, @unchecked Sendable {
     private let allRecordsData: [BBTRecord]
+    private let allWeightsData: [WeightRecord]
     private let allTagsData: [DailyTag]
 
-    init(allRecords: [BBTRecord] = [], allTags: [DailyTag] = []) {
+    init(allRecords: [BBTRecord] = [], allWeights: [WeightRecord] = [], allTags: [DailyTag] = []) {
         self.allRecordsData = allRecords
+        self.allWeightsData = allWeights
         self.allTagsData = allTags
     }
 
@@ -137,6 +139,16 @@ private final class RecentRangeStubRepository: BBTRepository, @unchecked Sendabl
 
     func fetchAllRecords() throws -> [BBTRecord] {
         allRecordsData
+    }
+
+    func saveWeight(on date: Date, weightKg: Double) throws {}
+
+    func fetchWeight(on date: Date) throws -> WeightRecord? {
+        nil
+    }
+
+    func fetchAllWeights() throws -> [WeightRecord] {
+        allWeightsData
     }
 
     func saveTag(

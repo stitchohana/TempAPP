@@ -6,6 +6,7 @@ import SwiftUI
 public final class HomeViewModel: ObservableObject {
     @Published public private(set) var state: HomeState
     @Published public var inputValue: Double = 36.6
+    @Published public var inputWeightValue: Double = 55.0
     @Published public var tagHasIntercourse: Bool = false
     @Published public var tagIntercourseTime: IntercourseTime? = nil
     @Published public var tagHasMenstruation: Bool = false
@@ -23,9 +24,12 @@ public final class HomeViewModel: ObservableObject {
     private let analyzeCycleUseCase: AnalyzeCycleUseCase
     private let inputRangeCelsius: ClosedRange<Double> = 35.0...40.0
     private let inputDefaultCelsius: Double = 36.6
+    private let weightRangeKg: ClosedRange<Double> = 30.0...150.0
+    private let weightDefaultKg: Double = 55.0
     private var hasAlignedMonthOnLaunch = false
     private let defaults = UserDefaults.standard
     private let lastTemperatureCelsiusKey = "last_input_temperature_celsius"
+    private let lastWeightKgKey = "last_input_weight_kg"
 
     public init(container: AppContainer) {
         let today = container.dateService.dayStart(for: Date())
@@ -82,10 +86,34 @@ public final class HomeViewModel: ObservableObject {
         }
     }
 
+    public var weightRecordsByDateKey: [String: WeightRecord] {
+        state.allWeightRecords.reduce(into: [:]) { result, record in
+            let key = dateService.storageKey(for: record.date)
+            if let existing = result[key], existing.updatedAt > record.updatedAt {
+                return
+            }
+            result[key] = record
+        }
+    }
+
+    public var chartWeightRecordsByDateKey: [String: WeightRecord] {
+        state.chartWeightRecords.reduce(into: [:]) { result, record in
+            let key = dateService.storageKey(for: record.date)
+            if let existing = result[key], existing.updatedAt > record.updatedAt {
+                return
+            }
+            result[key] = record
+        }
+    }
+
     public var inputRangeForCurrentUnit: ClosedRange<Double> {
         let lower = UnitConversionService.toDisplayValue(celsius: inputRangeCelsius.lowerBound, unit: state.unit)
         let upper = UnitConversionService.toDisplayValue(celsius: inputRangeCelsius.upperBound, unit: state.unit)
         return roundToTenth(lower)...roundToTenth(upper)
+    }
+
+    public var inputWeightRangeKg: ClosedRange<Double> {
+        weightRangeKg
     }
 
     public func onAppear() {
@@ -142,8 +170,24 @@ public final class HomeViewModel: ObservableObject {
         haptics.light()
     }
 
+    public func presentWeightInput() {
+        let key = dateService.storageKey(for: state.selectedDate)
+        if let record = weightRecordsByDateKey[key] {
+            inputWeightValue = roundToTenth(record.weightKg)
+        } else {
+            let remembered = defaults.object(forKey: lastWeightKgKey) as? Double
+            inputWeightValue = roundToTenth(remembered ?? weightDefaultKg)
+        }
+        state.isWeightSheetPresented = true
+        haptics.light()
+    }
+
     public func dismissInput() {
         state.isInputSheetPresented = false
+    }
+
+    public func dismissWeightInput() {
+        state.isWeightSheetPresented = false
     }
 
     public func saveInput() {
@@ -158,6 +202,19 @@ public final class HomeViewModel: ObservableObject {
             hoverRecord = recordsByDateKey[dateService.storageKey(for: state.selectedDate)]
         } catch {
             errorMessage = "保存失败，请重试。"
+        }
+    }
+
+    public func saveWeightInput() {
+        do {
+            let value = min(max(roundToTenth(inputWeightValue), weightRangeKg.lowerBound), weightRangeKg.upperBound)
+            try repository.saveWeight(on: state.selectedDate, weightKg: value)
+            defaults.set(value, forKey: lastWeightKgKey)
+            haptics.success()
+            state.isWeightSheetPresented = false
+            reloadData()
+        } catch {
+            errorMessage = "体重保存失败，请重试。"
         }
     }
 
@@ -248,31 +305,36 @@ public final class HomeViewModel: ObservableObject {
             state.monthlyRecords = try getMonthlyRecordsUseCase.execute(containing: state.displayMonth)
             state.monthlyTags = try repository.fetchMonthlyTags(containing: state.displayMonth)
             let allRecords = try repository.fetchAllRecords()
+            let allWeights = try repository.fetchAllWeights()
             let allTags = try repository.fetchAllTags()
+            state.allWeightRecords = allWeights
             let analysis = analyzeCycleUseCase.execute(records: allRecords)
             state.coverline = analysis.coverline
             state.highTempDays = analysis.highTemperatureDays
             state.isPregnancySignal = analysis.isPregnancySignal
-            rebuildChartData(allRecords: allRecords, allTags: allTags)
+            rebuildChartData(allRecords: allRecords, allWeights: allWeights, allTags: allTags)
             errorMessage = nil
         } catch {
             errorMessage = "读取数据失败，请稍后重试。"
         }
     }
 
-    private func rebuildChartData(allRecords: [BBTRecord]? = nil, allTags: [DailyTag]? = nil) {
+    private func rebuildChartData(allRecords: [BBTRecord]? = nil, allWeights: [WeightRecord]? = nil, allTags: [DailyTag]? = nil) {
         let records: [BBTRecord]
+        let weights: [WeightRecord]
         let tags: [DailyTag]
 
-        if let allRecords, let allTags {
+        if let allRecords, let allWeights, let allTags {
             records = allRecords
+            weights = allWeights
             tags = allTags
         } else {
             records = (try? repository.fetchAllRecords()) ?? []
+            weights = (try? repository.fetchAllWeights()) ?? []
             tags = (try? repository.fetchAllTags()) ?? []
         }
 
-        let end = chartEndDate(records: records, tags: tags)
+        let end = chartEndDate(records: records, weights: weights, tags: tags)
         let offset = state.chartRange.rawValue - 1
         let start = dateService.calendar.date(byAdding: .day, value: -offset, to: end) ?? end
         let upper = dateService.calendar.date(byAdding: .day, value: 1, to: end) ?? end
@@ -289,13 +351,17 @@ public final class HomeViewModel: ObservableObject {
             let day = dateService.dayStart(for: record.date)
             return day >= start && day < upper
         }
+        state.chartWeightRecords = weights.filter { record in
+            let day = dateService.dayStart(for: record.date)
+            return day >= start && day < upper
+        }
         state.chartTags = tags.filter { tag in
             let day = dateService.dayStart(for: tag.date)
             return day >= start && day < upper
         }
     }
 
-    private func chartEndDate(records: [BBTRecord], tags: [DailyTag]) -> Date {
+    private func chartEndDate(records: [BBTRecord], weights: [WeightRecord], tags: [DailyTag]) -> Date {
         let today = dateService.dayStart(for: Date())
         let offset = state.chartRange.rawValue - 1
         let recentWindowStart = dateService.calendar.date(byAdding: .day, value: -offset, to: today) ?? today
@@ -308,14 +374,19 @@ public final class HomeViewModel: ObservableObject {
             let day = dateService.dayStart(for: tag.date)
             return day >= recentWindowStart && day <= today
         }
+        let hasRecentWeight = weights.contains { weight in
+            let day = dateService.dayStart(for: weight.date)
+            return day >= recentWindowStart && day <= today
+        }
 
-        if hasRecentRecord || hasRecentTag {
+        if hasRecentRecord || hasRecentTag || hasRecentWeight {
             return today
         }
 
         let latestRecordDay = records.map { dateService.dayStart(for: $0.date) }.max()
+        let latestWeightDay = weights.map { dateService.dayStart(for: $0.date) }.max()
         let latestTagDay = tags.map { dateService.dayStart(for: $0.date) }.max()
-        let latestHistoryDay = max(latestRecordDay ?? .distantPast, latestTagDay ?? .distantPast)
+        let latestHistoryDay = max(max(latestRecordDay ?? .distantPast, latestWeightDay ?? .distantPast), latestTagDay ?? .distantPast)
         if latestHistoryDay == .distantPast {
             return today
         }
@@ -328,12 +399,14 @@ public final class HomeViewModel: ObservableObject {
 
         do {
             let records = try repository.fetchAllRecords()
+            let weights = try repository.fetchAllWeights()
             let tags = try repository.fetchAllTags()
-            let latestHistoryDate = max(records.last?.date ?? .distantPast, tags.last?.date ?? .distantPast)
+            let latestHistoryDate = max(max(records.last?.date ?? .distantPast, weights.last?.date ?? .distantPast), tags.last?.date ?? .distantPast)
             guard latestHistoryDate != .distantPast else { return }
 
             let currentMonthRange = dateService.monthRange(containing: state.displayMonth)
             let hasRecordOrTagInCurrentMonth = records.contains { currentMonthRange.contains($0.date) }
+                || weights.contains { currentMonthRange.contains($0.date) }
                 || tags.contains { currentMonthRange.contains($0.date) }
             guard !hasRecordOrTagInCurrentMonth else { return }
 

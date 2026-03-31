@@ -127,6 +127,16 @@ private final class StubRepository: BBTRepository, @unchecked Sendable {
         allRecordsData
     }
 
+    func saveWeight(on date: Date, weightKg: Double) throws {}
+
+    func fetchWeight(on date: Date) throws -> WeightRecord? {
+        nil
+    }
+
+    func fetchAllWeights() throws -> [WeightRecord] {
+        []
+    }
+
     func saveTag(
         on date: Date,
         hasIntercourse: Bool,
