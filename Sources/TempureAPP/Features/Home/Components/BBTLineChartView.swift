@@ -47,13 +47,13 @@ public struct BBTLineChartView: View {
 
     public var body: some View {
         GeometryReader { proxy in
-            let frame = chartFrame(in: proxy.size)
+            let marker = markerRecord
+            let frame = chartFrame(in: proxy.size, hasDetail: marker != nil)
             let points = plottedPoints(in: frame)
             let segments = lineSegments(from: points)
             let weightRange = weightRangeForAxis()
             let weightPoints = plottedWeightPoints(in: frame, range: weightRange)
             let weightSegments = weightLineSegments(from: weightPoints)
-            let marker = markerRecord
             let tagMarkers = tagMarkers(from: points)
             let axisRange = rangeForAxis(points: points)
 
@@ -160,7 +160,7 @@ public struct BBTLineChartView: View {
                     markerBubble(for: marker)
                         .position(
                             x: min(max(point.point.x, frame.minX + 72), frame.maxX - 72),
-                            y: frame.minY + 20
+                            y: frame.maxY + 42
                         )
                 }
             }
@@ -266,6 +266,10 @@ public struct BBTLineChartView: View {
         Color(red: 0.29, green: 0.49, blue: 0.83)
     }
 
+    private var temperatureLineColor: Color {
+        TempureColors.sageGreen
+    }
+
     private func weightText(for date: Date) -> String? {
         let key = dateService.storageKey(for: date)
         guard let record = weightRecordsByDateKey[key] else { return nil }
@@ -306,11 +310,11 @@ public struct BBTLineChartView: View {
         return items.isEmpty ? nil : items.joined(separator: " · ")
     }
 
-    private func chartFrame(in size: CGSize) -> CGRect {
+    private func chartFrame(in size: CGSize, hasDetail: Bool) -> CGRect {
         let leftInset: CGFloat = 48
         let rightInset: CGFloat = weightRecordsByDateKey.isEmpty ? 14 : 58
         let topInset: CGFloat = 16
-        let bottomInset: CGFloat = 28
+        let bottomInset: CGFloat = hasDetail ? 82 : 28
         let width = max(size.width - leftInset - rightInset, 40)
         let height = max(size.height - topInset - bottomInset, 40)
         return CGRect(x: leftInset, y: topInset, width: width, height: height)
@@ -534,38 +538,12 @@ public struct BBTLineChartView: View {
         return output
     }
 
-    private func pointColor(for point: PlottedPoint) -> Color {
-        guard let coverlineCelsius else {
-            return TempureColors.sageGreen
-        }
-        return point.record.temperatureCelsius >= coverlineCelsius
-            ? TempureColors.dustyRose
-            : TempureColors.sageGreen
+    private func pointColor(for _: PlottedPoint) -> Color {
+        return temperatureLineColor
     }
 
     private func strokeForSegment(_ segment: LineSegment) -> AnyShapeStyle {
-        if segment.isDashed {
-            return AnyShapeStyle(TempureColors.missingDash)
-        }
-
-        guard let coverlineCelsius else {
-            return AnyShapeStyle(TempureColors.sageGreen)
-        }
-
-        let isStartHigh = segment.start.record.temperatureCelsius >= coverlineCelsius
-        let isEndHigh = segment.end.record.temperatureCelsius >= coverlineCelsius
-
-        if isStartHigh == isEndHigh {
-            return AnyShapeStyle(isStartHigh ? TempureColors.dustyRose : TempureColors.sageGreen)
-        }
-
-        return AnyShapeStyle(
-            LinearGradient(
-                colors: [TempureColors.sageGreen, TempureColors.dustyRose],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        )
+        AnyShapeStyle(temperatureLineColor.opacity(segment.isDashed ? 0.6 : 1))
     }
 }
 
