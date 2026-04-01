@@ -1,0 +1,19 @@
+name = "tempure-worker"
+main = "src/index.ts"
+compatibility_date = "2026-04-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tempure-db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[[kv_namespaces]]
+binding = "OTP_KV"
+id = "REPLACE_WITH_OTP_KV_ID"
+
+[[kv_namespaces]]
+binding = "RATE_KV"
+id = "REPLACE_WITH_RATE_KV_ID"
+
+[vars]
+APP_ENV = "dev"
