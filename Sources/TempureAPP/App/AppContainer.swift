@@ -22,8 +22,10 @@ public struct AppContainer: Sendable {
         let db = try SQLiteDatabase()
         let repository = SQLiteBBTRepository(db: db)
 
-        if let workerBaseURL = AppConfig.workerBaseURL {
-            let client = CloudflareWorkerClient(baseURL: workerBaseURL)
+        if let endpoint = ProcessInfo.processInfo.environment["WORKER_BASE_URL"],
+           let url = URL(string: endpoint)
+        {
+            let client = CloudflareWorkerClient(baseURL: url)
             return AppContainer(repository: repository, authRepository: WorkerAuthRepository(client: client))
         }
 
