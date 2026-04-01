@@ -4,13 +4,33 @@ import SwiftUI
 public struct TempureRootView: View {
     @State private var container: AppContainer?
     @State private var startupError: String?
+    @StateObject private var authSessionStore = AuthSessionStore()
 
     public init() {}
 
     public var body: some View {
         Group {
             if let container {
-                HomeView(viewModel: HomeViewModel(container: container))
+                if authSessionStore.isAuthenticated {
+                    NavigationStack {
+                        HomeView(viewModel: HomeViewModel(container: container))
+                            .toolbar {
+                                ToolbarItem(placement: .topBarTrailing) {
+                                    Button("退出") {
+                                        authSessionStore.clear()
+                                    }
+                                    .font(TempureTypography.caption)
+                                }
+                            }
+                    }
+                } else {
+                    LoginView(
+                        viewModel: LoginViewModel(
+                            repository: container.authRepository,
+                            sessionStore: authSessionStore
+                        )
+                    )
+                }
             } else if let startupError {
                 Text(startupError)
                     .font(TempureTypography.body)
