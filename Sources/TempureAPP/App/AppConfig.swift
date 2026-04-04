@@ -1,7 +1,7 @@
 import Foundation
 
 public enum AppConfig {
-    private static let defaultWorkerBaseURLString = "https://tempure-worker.523882907.workers.dev"
+    private static let defaultWorkerBaseURLString = "https://234575.xyz"
 
     public static var workerBaseURL: URL? {
         if let envValue = ProcessInfo.processInfo.environment["WORKER_BASE_URL"],

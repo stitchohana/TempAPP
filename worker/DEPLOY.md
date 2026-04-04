@@ -46,7 +46,8 @@ wrangler secret put JWT_SECRET
 wrangler secret put OTP_SALT
 ```
 
-可选：在 `wrangler.toml` 中设置 `APP_ENV = "dev"` 用于联调（`send-code` 会返回 `debugCode`）。
+可选：在 `wrangler.toml` 中设置 `APP_ENV = "dev"` 用于联调与日志区分。
+推荐：`OTP_SALT` 使用高强度随机值，作为密码哈希服务端加盐（pepper）。
 
 ## 5. 本地联调
 
@@ -72,9 +73,23 @@ wrangler deploy
 https://tempure-worker.<your-subdomain>.workers.dev
 ```
 
+本项目已在 `wrangler.toml` 配置自定义域名路由：
+
+```toml
+routes = [{ pattern = "234575.xyz/*", zone_name = "234575.xyz" }]
+```
+
+请确保该域名已接入 Cloudflare 且 DNS 记录已开启代理（橙云）。
+
 ## 7. App 端接入
 
-将 iOS 端环境变量 `WORKER_BASE_URL` 指向上面的 Worker URL。
+默认已使用：
+
+```txt
+https://234575.xyz
+```
+
+如需临时切换其他后端，可通过 iOS 端环境变量 `WORKER_BASE_URL` 覆盖。
 
 示例：
 
@@ -88,5 +103,5 @@ WORKER_BASE_URL=https://tempure-worker.<your-subdomain>.workers.dev
 
 - 快速回滚：重新 `wrangler deploy` 到上一个稳定 commit。
 - 鉴权失败：检查 `JWT_SECRET` 是否与当前环境一致。
-- OTP 不生效：检查 `OTP_KV` 绑定、TTL、以及 `APP_ENV` 配置。
+- 登录失败：检查 `/auth/register` 与 `/auth/login` 路由是否可达，以及 `OTP_SALT` 是否配置。
 - 数据写入失败：检查 D1 绑定和 `schema.sql` 是否已执行。

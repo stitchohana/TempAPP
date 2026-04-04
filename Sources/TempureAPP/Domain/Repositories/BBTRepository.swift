@@ -20,6 +20,7 @@ public protocol BBTRepository: Sendable {
     func fetchTag(on date: Date) throws -> DailyTag?
     func fetchMonthlyTags(containing date: Date) throws -> [DailyTag]
     func fetchAllTags() throws -> [DailyTag]
+    func clearAllData() throws
     func updatePreferredUnit(_ unit: TemperatureUnit)
     func preferredUnit() -> TemperatureUnit
 }

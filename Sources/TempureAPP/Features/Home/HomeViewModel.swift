@@ -19,6 +19,9 @@ public final class HomeViewModel: ObservableObject {
     private let repository: BBTRepository
     private let dateService: DateService
     private let haptics: HapticsService
+    private let authRepository: AuthRepository
+    private let recordSyncService: WorkerRecordSyncService?
+    private let sessionStore: AuthSessionStore?
     private let saveTemperatureUseCase: SaveTemperatureUseCase
     private let getMonthlyRecordsUseCase: GetMonthlyRecordsUseCase
     private let analyzeCycleUseCase: AnalyzeCycleUseCase
@@ -30,12 +33,18 @@ public final class HomeViewModel: ObservableObject {
     private let defaults = UserDefaults.standard
     private let lastTemperatureCelsiusKey = "last_input_temperature_celsius"
     private let lastWeightKgKey = "last_input_weight_kg"
+    private var isSyncingCloud = false
+    private var pendingCloudUpload = false
+    private var didInitialServerHydration = false
 
-    public init(container: AppContainer) {
+    public init(container: AppContainer, sessionStore: AuthSessionStore? = nil) {
         let today = container.dateService.dayStart(for: Date())
         self.repository = container.repository
         self.dateService = container.dateService
         self.haptics = container.haptics
+        self.authRepository = container.authRepository
+        self.recordSyncService = container.recordSyncService
+        self.sessionStore = sessionStore
         self.saveTemperatureUseCase = SaveTemperatureUseCase(repository: container.repository, dateService: container.dateService)
         self.getMonthlyRecordsUseCase = GetMonthlyRecordsUseCase(repository: container.repository)
         self.analyzeCycleUseCase = AnalyzeCycleUseCase(dateService: container.dateService)
@@ -116,9 +125,30 @@ public final class HomeViewModel: ObservableObject {
         weightRangeKg
     }
 
+    public var currentAccountName: String? {
+        guard let name = sessionStore?.session?.user.email, name.isEmpty == false else {
+            return nil
+        }
+        return name
+    }
+
     public func onAppear() {
         alignDisplayMonthToLatestRecordOnFirstLaunch()
         reloadData()
+        if didInitialServerHydration == false {
+            didInitialServerHydration = true
+            Task { await syncCloud(pushFirst: true) }
+        } else {
+            Task { await syncCloud(pushFirst: false) }
+        }
+    }
+
+    public func onEnterForeground() {
+        Task { await syncCloud(pushFirst: false) }
+    }
+
+    public func onEnterBackground() {
+        Task { await syncCloud(pushFirst: false) }
     }
 
     public func showPreviousMonth() {
@@ -200,6 +230,7 @@ public final class HomeViewModel: ObservableObject {
             state.isInputSheetPresented = false
             reloadData()
             hoverRecord = recordsByDateKey[dateService.storageKey(for: state.selectedDate)]
+            scheduleCloudUpload()
         } catch {
             errorMessage = "保存失败，请重试。"
         }
@@ -213,6 +244,7 @@ public final class HomeViewModel: ObservableObject {
             haptics.success()
             state.isWeightSheetPresented = false
             reloadData()
+            scheduleCloudUpload()
         } catch {
             errorMessage = "体重保存失败，请重试。"
         }
@@ -258,6 +290,7 @@ public final class HomeViewModel: ObservableObject {
             haptics.success()
             state.isTagSheetPresented = false
             reloadData()
+            scheduleCloudUpload()
         } catch {
             errorMessage = "标签保存失败，请重试。"
         }
@@ -415,6 +448,106 @@ public final class HomeViewModel: ObservableObject {
             hoverRecord = records.last { dateService.dayStart(for: $0.date) == dateService.dayStart(for: latestHistoryDate) }
         } catch {
             // Keep default month when startup lookup fails.
+        }
+    }
+
+    private func scheduleCloudUpload() {
+        Task { await syncCloud(pushFirst: false) }
+    }
+
+    private func syncCloud(pushFirst: Bool) async {
+        if isSyncingCloud {
+            if pushFirst == false {
+                pendingCloudUpload = true
+            }
+            return
+        }
+        guard let recordSyncService, let sessionStore, let session = sessionStore.session else { return }
+
+        isSyncingCloud = true
+        defer {
+            isSyncingCloud = false
+            if pendingCloudUpload {
+                pendingCloudUpload = false
+                Task { await syncCloud(pushFirst: false) }
+            }
+        }
+
+        do {
+            try await runCloudSync(pushFirst: pushFirst, recordSyncService: recordSyncService, accessToken: session.tokens.accessToken)
+        } catch CloudflareWorkerClient.ClientError.unauthorized {
+            do {
+                let refreshedTokens = try await authRepository.refreshToken(refreshToken: session.tokens.refreshToken)
+                sessionStore.update(tokens: refreshedTokens)
+                try await runCloudSync(pushFirst: pushFirst, recordSyncService: recordSyncService, accessToken: refreshedTokens.accessToken)
+            } catch {
+                if pushFirst {
+                    errorMessage = "云端同步失败，请重新登录后重试。"
+                } else {
+                    pendingCloudUpload = true
+                }
+            }
+        } catch {
+            if pushFirst {
+                errorMessage = "云端同步失败，请稍后重试。"
+            } else {
+                pendingCloudUpload = true
+                errorMessage = "数据上传失败，将在下次自动重试。"
+            }
+        }
+    }
+
+    private func runCloudSync(
+        pushFirst: Bool,
+        recordSyncService: WorkerRecordSyncService,
+        accessToken: String
+    ) async throws {
+        if pushFirst {
+            let remoteRecords = try await recordSyncService.fetchAll(accessToken: accessToken)
+            try replaceLocalWithRemote(remoteRecords)
+            reloadData()
+        } else {
+            try await pushLocalRecords(recordSyncService: recordSyncService, accessToken: accessToken)
+        }
+    }
+
+    private func pushLocalRecords(recordSyncService: WorkerRecordSyncService, accessToken: String) async throws {
+        let records = try repository.fetchAllRecords()
+        let weights = try repository.fetchAllWeights()
+        let tags = try repository.fetchAllTags()
+        try await recordSyncService.batchUpsert(
+            temperatureRecords: records,
+            weightRecords: weights,
+            tags: tags,
+            accessToken: accessToken
+        )
+    }
+
+    private func replaceLocalWithRemote(_ records: [WorkerRecordSyncService.SyncedRecord]) throws {
+        try repository.clearAllData()
+
+        for remote in records {
+            guard let date = dateService.date(from: remote.recordDate) else { continue }
+
+            if let remoteTemp = remote.temperatureC {
+                try repository.saveTemperature(on: date, temperatureCelsius: remoteTemp)
+            }
+
+            if let remoteWeight = remote.weightKg {
+                try repository.saveWeight(on: date, weightKg: remoteWeight)
+            }
+
+            if let remoteTags = remote.tags {
+                try repository.saveTag(
+                    on: date,
+                    hasIntercourse: remoteTags.hasIntercourse,
+                    intercourseTime: remoteTags.intercourseTime.flatMap { IntercourseTime(rawValue: $0) },
+                    hasMenstruation: remoteTags.hasMenstruation,
+                    menstrualFlow: remoteTags.menstrualFlow.flatMap { MenstrualFlow(rawValue: $0) },
+                    menstrualColor: remoteTags.menstrualColor.flatMap { MenstrualColor(rawValue: $0) },
+                    hasDysmenorrhea: remoteTags.hasDysmenorrhea
+                )
+            }
         }
     }
 }

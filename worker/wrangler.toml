@@ -2,18 +2,22 @@ name = "tempure-worker"
 main = "src/index.ts"
 compatibility_date = "2026-04-01"
 
+routes = [
+  { pattern = "234575.xyz/*", zone_name = "234575.xyz" }
+]
+
 [[d1_databases]]
 binding = "DB"
 database_name = "tempure-db"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "ca174647-f16f-486e-b02f-17e40daa76b1"
 
 [[kv_namespaces]]
 binding = "OTP_KV"
-id = "REPLACE_WITH_OTP_KV_ID"
+id = "7634047dd45e409181eb64ca116120ed"
 
 [[kv_namespaces]]
 binding = "RATE_KV"
-id = "REPLACE_WITH_RATE_KV_ID"
+id = "3845f0b973f4411b9c7b00e58a344580"
 
 [vars]
 APP_ENV = "dev"

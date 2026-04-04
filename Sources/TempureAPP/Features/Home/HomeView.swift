@@ -7,6 +7,7 @@ import UIKit
 public struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
     @State private var chartRenderSize: CGSize = .zero
 #if canImport(UIKit)
     @State private var chartImageSaveHandler: ChartImageSaveHandler?
@@ -23,6 +24,24 @@ public struct HomeView: View {
 
             VStack(spacing: 12) {
                 HStack {
+                    if let accountName = viewModel.currentAccountName {
+                        HStack(spacing: 6) {
+                            Image(systemName: "person.crop.circle")
+                                .font(.system(size: 13, weight: .medium))
+                            Text(accountName)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                        }
+                        .font(TempureTypography.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule(style: .continuous)
+                                .fill(Color.white.opacity(colorScheme == .dark ? 0.12 : 0.7))
+                        )
+                    }
+
                     Spacer()
                     TinySettingsView(unit: viewModel.state.unit) {
                         viewModel.updateUnit($0)
@@ -181,6 +200,16 @@ public struct HomeView: View {
         }
         .task {
             viewModel.onAppear()
+        }
+        .onChange(of: scenePhase) { phase in
+            switch phase {
+            case .active:
+                viewModel.onEnterForeground()
+            case .background:
+                viewModel.onEnterBackground()
+            default:
+                break
+            }
         }
     }
 

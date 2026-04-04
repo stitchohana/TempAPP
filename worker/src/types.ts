@@ -9,12 +9,12 @@ export interface Env {
 
 export interface TokenPayload {
   sub: string;
-  email: string;
+  account: string;
   type: 'access' | 'refresh';
   exp: number;
 }
 
 export interface AuthContext {
   userId: string;
-  email: string;
+  account: string;
 }

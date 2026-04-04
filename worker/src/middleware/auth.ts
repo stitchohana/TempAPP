@@ -13,6 +13,6 @@ export async function requireAuth(request: Request, env: Env): Promise<AuthConte
 
   return {
     userId: payload.sub,
-    email: payload.email,
+    account: payload.account,
   };
 }

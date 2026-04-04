@@ -13,7 +13,7 @@ public struct TempureRootView: View {
             if let container {
                 if authSessionStore.isAuthenticated {
                     NavigationStack {
-                        HomeView(viewModel: HomeViewModel(container: container))
+                        HomeView(viewModel: HomeViewModel(container: container, sessionStore: authSessionStore))
                             .toolbar {
                                 ToolbarItem(placement: .topBarTrailing) {
                                     Button("退出") {

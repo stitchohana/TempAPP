@@ -2,10 +2,11 @@
 
 这是 TempureAPP 的后端起步实现，提供：
 
-- `POST /auth/send-code`
-- `POST /auth/verify-code`
+- `POST /auth/register`
+- `POST /auth/login`
 - `POST /auth/refresh`
 - `POST /records/batch-upsert`
+- `GET /records/all`
 - `GET /health`
 
 ## 快速开始
@@ -31,4 +32,12 @@ wrangler secret put OTP_SALT
 wrangler dev
 ```
 
-> `APP_ENV=dev` 时 `send-code` 会返回 `debugCode` 便于联调。
+## 账号密码认证说明
+
+- `register` 和 `login` 均接收 `{ account, password }`
+- `account` 支持 3-64 位字母、数字、`.`、`_`、`@`、`-`
+- `password` 最短 6 位
+
+## 线上域名
+
+- 默认接入域名：`https://234575.xyz`

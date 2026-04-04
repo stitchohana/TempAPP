@@ -1,11 +1,13 @@
 import Foundation
 
 public struct WorkerAuthRepository: AuthRepository, Sendable {
-    private struct SendCodeRequest: Encodable { let email: String }
-    private struct VerifyCodeRequest: Encodable { let email: String; let code: String }
+    private struct AuthRequest: Encodable {
+        let account: String
+        let password: String
+    }
     private struct RefreshRequest: Encodable { let refreshToken: String }
 
-    private struct VerifyCodeResponse: Decodable {
+    private struct AuthResponse: Decodable {
         let accessToken: String
         let refreshToken: String
         let user: AuthUser
@@ -22,12 +24,22 @@ public struct WorkerAuthRepository: AuthRepository, Sendable {
         self.client = client
     }
 
-    public func sendCode(email: String) async throws {
-        try await client.post(path: "/auth/send-code", body: SendCodeRequest(email: email))
+    public func register(account: String, password: String) async throws -> AuthSession {
+        let response: AuthResponse = try await client.post(
+            path: "/auth/register",
+            body: AuthRequest(account: account, password: password)
+        )
+        return AuthSession(
+            user: response.user,
+            tokens: AuthTokens(accessToken: response.accessToken, refreshToken: response.refreshToken)
+        )
     }
 
-    public func verifyCode(email: String, code: String) async throws -> AuthSession {
-        let response: VerifyCodeResponse = try await client.post(path: "/auth/verify-code", body: VerifyCodeRequest(email: email, code: code))
+    public func login(account: String, password: String) async throws -> AuthSession {
+        let response: AuthResponse = try await client.post(
+            path: "/auth/login",
+            body: AuthRequest(account: account, password: password)
+        )
         return AuthSession(
             user: response.user,
             tokens: AuthTokens(accessToken: response.accessToken, refreshToken: response.refreshToken)

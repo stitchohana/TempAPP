@@ -5,76 +5,68 @@ import Foundation
 
 @MainActor
 public final class LoginViewModel: ObservableObject {
-    @Published public var email: String = ""
-    @Published public var code: String = ""
-    @Published public var isSendingCode: Bool = false
-    @Published public var isLoggingIn: Bool = false
-    @Published public var countdown: Int = 0
+    @Published public var account: String = ""
+    @Published public var password: String = ""
+    @Published public var confirmPassword: String = ""
+    @Published public var isRegisterMode: Bool = false
+    @Published public var isSubmitting: Bool = false
     @Published public var errorMessage: String?
 
     private let repository: AuthRepository
     private let sessionStore: AuthSessionStore
-    private var countdownTask: Task<Void, Never>?
+    private let allowedAccountRegex = "^[A-Za-z0-9._@-]{3,64}$"
 
     public init(repository: AuthRepository, sessionStore: AuthSessionStore) {
         self.repository = repository
         self.sessionStore = sessionStore
     }
 
-    deinit {
-        countdownTask?.cancel()
+    public func toggleMode() {
+        isRegisterMode.toggle()
+        errorMessage = nil
     }
 
-    public func sendCode() async {
-        guard validateEmail() else { return }
-        isSendingCode = true
-        defer { isSendingCode = false }
+    public func submit() async {
+        guard validateInput() else { return }
+        isSubmitting = true
+        defer { isSubmitting = false }
 
         do {
-            try await repository.sendCode(email: email)
-            startCountdown()
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    public func login() async {
-        guard validateEmail() else { return }
-        guard code.count == 6 else {
-            errorMessage = "请输入 6 位验证码。"
-            return
-        }
-
-        isLoggingIn = true
-        defer { isLoggingIn = false }
-
-        do {
-            let session = try await repository.verifyCode(email: email, code: code)
+            let session: AuthSession
+            if isRegisterMode {
+                session = try await repository.register(account: account, password: password)
+            } else {
+                session = try await repository.login(account: account, password: password)
+            }
+            password = ""
+            confirmPassword = ""
+            errorMessage = nil
             sessionStore.save(session: session)
         } catch {
             errorMessage = error.localizedDescription
         }
     }
 
-    private func validateEmail() -> Bool {
-        let trimmed = email.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed.contains("@"), trimmed.contains(".") else {
-            errorMessage = "请输入有效邮箱地址。"
+    private func validateInput() -> Bool {
+        let trimmedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmedAccount.isEmpty == false else {
+            errorMessage = "请输入账号。"
             return false
         }
-        email = trimmed
-        return true
-    }
-
-    private func startCountdown() {
-        countdownTask?.cancel()
-        countdown = 60
-        countdownTask = Task { [weak self] in
-            while let self, !Task.isCancelled, self.countdown > 0 {
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
-                self.countdown -= 1
-            }
+        guard trimmedAccount.range(of: allowedAccountRegex, options: .regularExpression) != nil else {
+            errorMessage = "账号格式不正确，请使用 3-64 位字母、数字或 . _ @ -。"
+            return false
         }
+        guard password.count >= 6 else {
+            errorMessage = "密码至少 6 位。"
+            return false
+        }
+        if isRegisterMode, password != confirmPassword {
+            errorMessage = "两次输入的密码不一致。"
+            return false
+        }
+        account = trimmedAccount
+        return true
     }
 }
 

@@ -15,51 +15,55 @@ public struct LoginView: View {
             VStack(spacing: 8) {
                 Text("Tempure")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
-                Text("记录每一天的体温变化")
+                Text(viewModel.isRegisterMode ? "创建账号后开始记录体温" : "使用账号密码安全登录")
                     .font(TempureTypography.caption)
                     .foregroundStyle(.secondary)
             }
 
             VStack(spacing: 12) {
-                TextField("邮箱", text: $viewModel.email)
+                TextField("账号", text: $viewModel.account)
                     .textInputAutocapitalization(.never)
-                    .keyboardType(.emailAddress)
+                    .keyboardType(.asciiCapable)
                     .autocorrectionDisabled()
                     .padding()
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
 
-                HStack(spacing: 8) {
-                    TextField("6位验证码", text: $viewModel.code)
-                        .keyboardType(.numberPad)
+                SecureField("密码（至少6位）", text: $viewModel.password)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .padding()
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+
+                if viewModel.isRegisterMode {
+                    SecureField("确认密码", text: $viewModel.confirmPassword)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-
-                    Button(viewModel.countdown > 0 ? "\(viewModel.countdown)s" : "发送验证码") {
-                        Task { await viewModel.sendCode() }
-                    }
-                    .disabled(viewModel.isSendingCode || viewModel.countdown > 0)
-                    .buttonStyle(.bordered)
                 }
 
                 Button {
-                    Task { await viewModel.login() }
+                    Task { await viewModel.submit() }
                 } label: {
-                    if viewModel.isLoggingIn {
+                    if viewModel.isSubmitting {
                         ProgressView()
                             .tint(.white)
                             .frame(maxWidth: .infinity)
                     } else {
-                        Text("登录 / 注册")
+                        Text(viewModel.isRegisterMode ? "注册并登录" : "登录")
                             .frame(maxWidth: .infinity)
                     }
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(TempureColors.dustyRose)
-                .disabled(viewModel.isLoggingIn)
+                .disabled(viewModel.isSubmitting)
 
-                Button("使用 Apple 登录（即将上线）") {}
-                    .buttonStyle(.bordered)
-                    .disabled(true)
+                Button(viewModel.isRegisterMode ? "已有账号？去登录" : "没有账号？去注册") {
+                    viewModel.toggleMode()
+                }
+                .buttonStyle(.plain)
+                .font(TempureTypography.caption)
+                .foregroundStyle(.secondary)
             }
 
             Spacer()

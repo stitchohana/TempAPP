@@ -349,6 +349,15 @@ public final class SQLiteBBTRepository: BBTRepository, @unchecked Sendable {
         return tags
     }
 
+    public func clearAllData() throws {
+        lock.lock()
+        defer { lock.unlock() }
+
+        try db.execute(sql: "DELETE FROM bbt_records;")
+        try db.execute(sql: "DELETE FROM weight_records;")
+        try db.execute(sql: "DELETE FROM daily_tags;")
+    }
+
     public func updatePreferredUnit(_ unit: TemperatureUnit) {
         defaults.set(unit.rawValue, forKey: preferredUnitKey)
     }
